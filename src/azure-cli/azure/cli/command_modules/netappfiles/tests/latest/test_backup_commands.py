@@ -50,7 +50,7 @@ class AzureNetAppFilesBackupServiceScenarioTest(ScenarioTest):
             vaults = self.cmd("az netappfiles vault list -g {rg} -a %s" % account_name).get_output_in_json()
 
             # create backup policy
-            backup_policy_name = self.create_random_name(prefix='cli-sn-pol-', length=16)
+            backup_policy_name = self.create_random_name(prefix='cli-backup-pol-', length=16)
             backup_policy = self.cmd("az netappfiles account backup-policy create -g {rg} -a %s "
                                      "--backup-policy-name %s -l %s --daily-backups 1" %
                                      (account_name, backup_policy_name, LOCATION)).get_output_in_json()
@@ -139,7 +139,7 @@ class AzureNetAppFilesBackupServiceScenarioTest(ScenarioTest):
         tags = "Tag1=Value1 Tag2=Value2"
         label = "label"
         self.cmd("netappfiles volume backup update -g {rg} -a %s -p %s -v %s --backup-name %s --tags %s --label %s" %
-                 (account_name, pool_name, volume_name, backup_name, tags, label)).get_output_in_json()
+                 (account_name, pool_name, volume_name, backup_name, tags, label))
 
         # get backup and validate
         backup = self.cmd("netappfiles volume backup show -g {rg} -a %s -p %s -v %s --backup-name %s" %
@@ -182,8 +182,8 @@ class AzureNetAppFilesBackupServiceScenarioTest(ScenarioTest):
 
         # disable backup for volume
         vaults = self.cmd("az netappfiles vault list -g {rg} -a %s" % account_name).get_output_in_json()
-        self.cmd("az netappfiles volume update -g {rg} -a %s -p %s -v %s --vault-id %s --backup-enabled %s" %
-                 (account_name, pool_name, volume_name, vaults[0]['id'], False)).get_output_in_json()
+        backup = self.cmd("az netappfiles volume update -g {rg} -a %s -p %s -v %s --vault-id %s --backup-enabled %s" %
+                          (account_name, pool_name, volume_name, vaults[0]['id'], False)).get_output_in_json()
 
         # Backup not completely ready, not able to retrieve backupId at the moment since swagger is not updated
         # create new volume and restore backup
