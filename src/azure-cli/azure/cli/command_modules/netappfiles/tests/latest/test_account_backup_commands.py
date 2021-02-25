@@ -55,7 +55,7 @@ class AzureNetAppFilesAccountBackupServiceScenarioTest(ScenarioTest):
             vaults = self.cmd("az netappfiles vault list -g {rg} -a %s" % account_name).get_output_in_json()
 
             # create backup policy
-            backup_policy_name = self.create_random_name(prefix='cli-sn-pol-', length=16)
+            backup_policy_name = self.create_random_name(prefix='cli-backup-pol-', length=16)
             backup_policy = self.cmd("az netappfiles account backup-policy create -g {rg} -a %s "
                                      "--backup-policy-name %s -l %s --daily-backups 1" %
                                      (account_name, backup_policy_name, LOCATION)).get_output_in_json()
@@ -83,3 +83,49 @@ class AzureNetAppFilesAccountBackupServiceScenarioTest(ScenarioTest):
         backup_list = self.cmd("az netappfiles account backup list -g {rg} -a %s" % account_name).get_output_in_json()
 
         assert len(backup_list) == 1
+
+    def test_delete_account_backups(self):
+        self.cmd("az netappfiles account backup delete -g cli_netappfiles_test_account_backup_b7tx7j66yii54yxculdtcibgemyy3yvghs6tqeo "
+                 "-a cli-acc-gkzeiviv7zdbmfm4 --backup-name ps1853")
+
+        self.cmd("az netappfiles account backup delete -g cli_netappfiles_test_account_backup_b7tx7j66yii54yxculdtcibgemyy3yvghs6tqeo "
+                 "-a cli-acc-gkzeiviv7zdbmfm4 --backup-name ps589")
+
+        self.cmd("az netappfiles account backup delete -g cli_netappfiles_test_account_backup_b7tx7j66yii54yxculdtcibgemyy3yvghs6tqeo "
+                 "-a cli-acc-gkzeiviv7zdbmfm4 --backup-name ps3195")
+
+        self.cmd("az netappfiles account backup delete -g cli_netappfiles_test_account_backup_b7tx7j66yii54yxculdtcibgemyy3yvghs6tqeo "
+                 "-a cli-acc-gkzeiviv7zdbmfm4 --backup-name ps1718")
+
+        self.cmd("az netappfiles account backup delete -g cli_netappfiles_test_account_backup_b7tx7j66yii54yxculdtcibgemyy3yvghs6tqeo "
+                 "-a cli-acc-gkzeiviv7zdbmfm4 --backup-name ps7147")
+
+        self.cmd("az netappfiles account backup delete -g cli_netappfiles_test_account_backup_b7tx7j66yii54yxculdtcibgemyy3yvghs6tqeo "
+                 "-a cli-acc-gkzeiviv7zdbmfm4 --backup-name ps926")
+
+        self.cmd("az netappfiles account backup delete -g cli_netappfiles_test_account_backup_b7tx7j66yii54yxculdtcibgemyy3yvghs6tqeo "
+                 "-a cli-acc-gkzeiviv7zdbmfm4 --backup-name ps5219")
+
+        self.cmd("az netappfiles account backup delete -g cli_netappfiles_test_account_backup_b7tx7j66yii54yxculdtcibgemyy3yvghs6tqeo "
+                 "-a cli-acc-gkzeiviv7zdbmfm4 --backup-name cli-backup-kefrky4wh2r4b")
+
+        self.cmd("az netappfiles account backup delete -g cli_netappfiles_test_account_backup_b7tx7j66yii54yxculdtcibgemyy3yvghs6tqeo "
+                 "-a cli-acc-gkzeiviv7zdbmfm4 --backup-name cli-backup-ao5vvb7t5zj4o")
+
+        self.cmd("az netappfiles account backup delete -g cli_netappfiles_test_account_backup_b7tx7j66yii54yxculdtcibgemyy3yvghs6tqeo "
+                 "-a cli-acc-gkzeiviv7zdbmfm4 --backup-name cli-backup-lpnhntruu347d")
+
+        self.cmd("az netappfiles account backup delete -g cli_netappfiles_test_account_backup_b7tx7j66yii54yxculdtcibgemyy3yvghs6tqeo "
+                 "-a cli-acc-gkzeiviv7zdbmfm4 --backup-name cli-backup-grpkbmc6gkiqt")
+
+        self.cmd("az netappfiles account backup delete -g cli_netappfiles_test_account_backup_b7tx7j66yii54yxculdtcibgemyy3yvghs6tqeo "
+                 "-a cli-acc-gkzeiviv7zdbmfm4 --backup-name cli-backup-lu7popwhuj2sq")
+
+        self.cmd("az netappfiles account delete -g cli_netappfiles_test_account_backup_b7tx7j66yii54yxculdtcibgemyy3yvghs6tqeo "
+                 "-a cli-acc-gkzeiviv7zdbmfm4 --backup-name cli-backup-e7gmppbovn2fp")
+
+
+    @ResourceGroupPreparer(name_prefix='cli_netappfiles_test_account_backup_')
+    def test_delete_the_account_backups(self):
+        self.cmd("az netappfiles account backup delete -g cli_netappfiles_test_account_backup_b7tx7j66yii54yxculdtcibgemyy3yvghs6tqeo "
+                 "-a cli-acc-gkzeiviv7zdbmfm4 --backup-name cli-backup-voevmw37xngs4")
