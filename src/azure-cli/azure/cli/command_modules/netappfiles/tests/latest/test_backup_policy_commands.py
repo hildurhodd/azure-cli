@@ -100,7 +100,7 @@ class AzureNetAppFilesBackupPolicyServiceScenarioTest(ScenarioTest):
         self.cmd("az netappfiles account create -g {rg} -a '%s' -l %s" % (account_name, LOCATION)).get_output_in_json()
 
         # create backup policy
-        backup_policy_name = self.create_random_name(prefix='cli-ba-pol-', length=16)
+        backup_policy_name = self.create_random_name(prefix='cli-sn-pol-', length=16)
         self.cmd("az netappfiles account backup-policy create -g {rg} -a %s --backup-policy-name %s -l %s "
                  "--daily-backups 1" % (account_name, backup_policy_name, LOCATION)).get_output_in_json()
 
@@ -123,7 +123,7 @@ class AzureNetAppFilesBackupPolicyServiceScenarioTest(ScenarioTest):
         self.cmd("az netappfiles account create -g {rg} -a '%s' -l %s" % (account_name, LOCATION)).get_output_in_json()
 
         # create backup policy
-        backup_policy_name = self.create_random_name(prefix='cli-ba-pol-', length=16)
+        backup_policy_name = self.create_random_name(prefix='cli-sn-pol-', length=16)
         daily_backups_to_keep = 1
         weekly_backups_to_keep = 2
         monthly_backups_to_keep = 3

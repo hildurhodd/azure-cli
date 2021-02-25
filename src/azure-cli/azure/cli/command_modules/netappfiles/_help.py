@@ -153,7 +153,6 @@ examples:
         az netappfiles account update -g mygroup --name myname --tags testtag2=mytagb
 """
 
-
 helps['netappfiles account backup'] = """
 type: group
 short-summary: Manage Azure NetApp Files (ANF) Account Backup Resources.
@@ -169,34 +168,6 @@ examples:
   - name: Get a list of all ANF account backup
     text: >
         az netappfiles account backup list -g mygroup --account-name myaccountname
-"""
-
-helps['netappfiles account backup show'] = """
-type: command
-short-summary: Get Backup for a Netapp Files (ANF) Account.
-parameters:
-  - name: --account-name -a
-    short-summary: The name of the ANF account
-  - name: --backup-name
-    short-summary: The name of the backup
-examples:
-  - name: Get a list of all ANF account backup
-    text: >
-        az netappfiles account backup show -g mygroup --account-name myaccountname --backup-name mybackupname
-"""
-
-helps['netappfiles account backup delete'] = """
-type: command
-short-summary: Delete Backup for a Netapp Files (ANF) Account.
-parameters:
-  - name: --account-name -a
-    short-summary: The name of the ANF account
-  - name: --backup-name
-    short-summary: The name of the backup
-examples:
-  - name: Get a list of all ANF account backup
-    text: >
-        az netappfiles account backup delete -g mygroup --account-name myaccountname --backup-name mybackupname
 """
 
 

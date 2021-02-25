@@ -6,7 +6,7 @@
 # pylint: disable=line-too-long
 
 from knack.log import get_logger
-from azure.mgmt.netapp.models import ActiveDirectory, NetAppAccount, NetAppAccountPatch, CapacityPool, CapacityPoolPatch, Volume, VolumePatch, VolumePropertiesExportPolicy, ExportPolicyRule, Snapshot, ReplicationObject, VolumePropertiesDataProtection, SnapshotPolicy, SnapshotPolicyPatch, HourlySchedule, DailySchedule, WeeklySchedule, MonthlySchedule, VolumeSnapshotProperties, VolumeBackupProperties, BackupPolicy, BackupPolicyPatch, VolumePatchPropertiesDataProtection, AccountEncryption, AuthorizeRequest, BreakReplicationRequest, PoolChangeRequest, VolumeRevert, Backup
+from azure.mgmt.netapp.models import ActiveDirectory, NetAppAccount, NetAppAccountPatch, CapacityPool, CapacityPoolPatch, Volume, VolumePatch, VolumePropertiesExportPolicy, ExportPolicyRule, Snapshot, ReplicationObject, VolumePropertiesDataProtection, SnapshotPolicy, SnapshotPolicyPatch, HourlySchedule, DailySchedule, WeeklySchedule, MonthlySchedule, VolumeSnapshotProperties, VolumeBackupProperties, BackupPolicy, BackupPolicyPatch, VolumePatchPropertiesDataProtection, AccountEncryption
 from azure.cli.core.commands.client_factory import get_subscription_id
 from msrestazure.tools import is_valid_resource_id, parse_resource_id
 
@@ -28,16 +28,16 @@ def _update_mapper(existing, new, keys):
 
 # pylint: disable=unused-argument
 # account update - active_directory is amended with subgroup commands
-def create_account(client, account_name, resource_group_name, location, tags=None, encryption=None):
+def create_account(cmd, client, account_name, resource_group_name, location, tags=None, encryption=None):
     account_encryption = AccountEncryption(key_source=encryption)
     body = NetAppAccount(location=location, tags=tags, encryption=account_encryption)
-    return client.begin_create_or_update(resource_group_name, account_name, body)
+    return client.create_or_update(body, resource_group_name, account_name)
 
 
 # pylint: disable=unused-argument
 # add an active directory to the netapp account
 # current limitation is 1 AD/subscription
-def add_active_directory(instance, account_name, resource_group_name, username, password, domain, dns,
+def add_active_directory(cmd, instance, account_name, resource_group_name, username, password, domain, dns,
                          smb_server_name, organizational_unit=None, kdc_ip=None, ad_name=None,
                          server_root_ca_cert=None, backup_operators=None, aes_encryption=None, ldap_signing=None,
                          security_operators=None, ldap_over_tls=None, tags=None):
@@ -55,7 +55,7 @@ def add_active_directory(instance, account_name, resource_group_name, username, 
 
 
 # list all active directories
-def list_active_directories(client, account_name, resource_group_name):
+def list_active_directories(cmd, client, account_name, resource_group_name):
     return client.get(resource_group_name, account_name).active_directories
 
 
@@ -65,7 +65,7 @@ def list_active_directories(client, account_name, resource_group_name):
 # absence of an AD does not remove the ADs already present. To perform this a put request is required that
 # asserts exactly the content provided, replacing whatever is already present including removing it if none
 # are present
-def remove_active_directory(client, account_name, resource_group_name, active_directory):
+def remove_active_directory(cmd, client, account_name, resource_group_name, active_directory):
     instance = client.get(resource_group_name, account_name)
 
     for ad in instance.active_directories:
@@ -75,11 +75,11 @@ def remove_active_directory(client, account_name, resource_group_name, active_di
     active_directories = instance.active_directories
     body = NetAppAccount(location=instance.location, tags=instance.tags, active_directories=active_directories)
 
-    return client.begin_create_or_update(resource_group_name, account_name, body)
+    return client.create_or_update(body, resource_group_name, account_name)
 
 
 # account update, active_directory is amended with subgroup commands
-def patch_account(instance, account_name, resource_group_name, tags=None, encryption=None):
+def patch_account(cmd, instance, account_name, resource_group_name, tags=None, encryption=None):
     account_encryption = AccountEncryption(key_source=encryption)
     body = NetAppAccountPatch(tags=tags, encryption=account_encryption)
     _update_mapper(instance, body, ['tags'])
@@ -88,14 +88,13 @@ def patch_account(instance, account_name, resource_group_name, tags=None, encryp
 
 # -- pool --
 
-
-def create_pool(client, account_name, pool_name, resource_group_name, service_level, location, size, tags=None, qos_type=None):
+def create_pool(cmd, client, account_name, pool_name, resource_group_name, service_level, location, size, tags=None, qos_type=None):
     body = CapacityPool(service_level=service_level, size=int(size) * tib_scale, location=location, tags=tags, qos_type=qos_type)
-    return client.begin_create_or_update(resource_group_name, account_name, pool_name, body)
+    return client.create_or_update(body, resource_group_name, account_name, pool_name)
 
 
 # pool update
-def patch_pool(instance, size=None, qos_type=None, tags=None):
+def patch_pool(cmd, instance, size=None, qos_type=None, tags=None):
     # put operation to update the record
     if size is not None:
         size = int(size) * tib_scale
@@ -105,8 +104,6 @@ def patch_pool(instance, size=None, qos_type=None, tags=None):
 
 
 # -- volume --
-
-
 # pylint: disable=too-many-locals
 def create_volume(cmd, client, account_name, pool_name, volume_name, resource_group_name, location, file_path,
                   usage_threshold, vnet, subnet='default', service_level=None, protocol_types=None, volume_type=None,
@@ -203,11 +200,16 @@ def create_volume(cmd, client, account_name, pool_name, volume_name, resource_gr
         smb_continuously_available=smb_continuously_avl,
         encryption_key_source=encryption_key_source)
 
-    return client.begin_create_or_update(resource_group_name, account_name, pool_name, volume_name, body)
+    return client.create_or_update(body, resource_group_name, account_name, pool_name, volume_name)
 
 
-# -- volume update
-def patch_volume(instance, usage_threshold=None, service_level=None, protocol_types=None, tags=None, vault_id=None,
+# volume revert
+def revert_snapshot(cmd, client, account_name, pool_name, volume_name, resource_group_name, snapshot_id):
+    return client.revert(resource_group_name, account_name, pool_name, volume_name, snapshot_id)
+
+
+# volume update
+def patch_volume(cmd, instance, usage_threshold=None, service_level=None, protocol_types=None, tags=None, vault_id=None,
                  backup_enabled=False, backup_policy_id=None, policy_enforced=False, throughput_mibps=None):
     params = VolumePatch(
         usage_threshold=None if usage_threshold is None else int(usage_threshold) * gib_scale,
@@ -215,7 +217,7 @@ def patch_volume(instance, usage_threshold=None, service_level=None, protocol_ty
         protocol_types=protocol_types,
         data_protection=None if vault_id is None else VolumePatchPropertiesDataProtection(
             backup=VolumeBackupProperties(vault_id=vault_id, backup_enabled=backup_enabled,
-                                            backup_policy_id=backup_policy_id, policy_enforced=policy_enforced)),
+                                          backup_policy_id=backup_policy_id, policy_enforced=policy_enforced)),
         tags=tags)
     if throughput_mibps is not None:
         params.throughput_mibps = throughput_mibps
@@ -223,32 +225,9 @@ def patch_volume(instance, usage_threshold=None, service_level=None, protocol_ty
     return params
 
 
-# -- volume revert
-def volume_revert(client, resource_group_name, account_name, pool_name, volume_name, snapshot_id):
-    body = VolumeRevert(snapshot_id=snapshot_id)
-    return client.begin_revert(resource_group_name, account_name, pool_name, volume_name, body)
-
-
-# -- change pool
-def pool_change(client, resource_group_name, account_name, pool_name, volume_name, new_pool_resource_id):
-    body = PoolChangeRequest(new_pool_resource_id=new_pool_resource_id)
-    return client.begin_pool_change(resource_group_name, account_name, pool_name, volume_name, body)
-
-
-# -- volume replication
-def authorize_replication(client, resource_group_name, account_name, pool_name, volume_name, remote_volume_resource_id=None):
-    body = AuthorizeRequest(remote_volume_resource_id=remote_volume_resource_id)
-    return client.begin_authorize_replication(resource_group_name, account_name, pool_name, volume_name, body)
-
-
-def break_replication(client, resource_group_name, account_name, pool_name, volume_name, force_break_replication=None):
-    body = BreakReplicationRequest(force_break_replication=force_break_replication)
-    return client.begin_break_replication(resource_group_name, account_name, pool_name, volume_name, body)
-
-
 # -- volume export policy --
 # add new rule to policy
-def add_export_policy_rule(instance, allowed_clients, rule_index, unix_read_only, unix_read_write, cifs, nfsv3, nfsv41):
+def add_export_policy_rule(cmd, instance, allowed_clients, rule_index, unix_read_only, unix_read_write, cifs, nfsv3, nfsv41):
     rules = []
 
     export_policy = ExportPolicyRule(rule_index=rule_index, unix_read_only=unix_read_only, unix_read_write=unix_read_write, cifs=cifs, nfsv3=nfsv3, nfsv41=nfsv41, allowed_clients=allowed_clients)
@@ -268,12 +247,12 @@ def add_export_policy_rule(instance, allowed_clients, rule_index, unix_read_only
 
 
 # list all rules
-def list_export_policy_rules(client, account_name, pool_name, volume_name, resource_group_name):
+def list_export_policy_rules(cmd, client, account_name, pool_name, volume_name, resource_group_name):
     return client.get(resource_group_name, account_name, pool_name, volume_name).export_policy
 
 
 # delete rule by specific index
-def remove_export_policy_rule(instance, rule_index):
+def remove_export_policy_rule(cmd, instance, rule_index):
     rules = []
     # Note this commented out way created a patch request that included some mount target properties causing validation issues server side
     # need to investigate why, leave this for now remove after this has been ivestigated before next release please
@@ -297,12 +276,18 @@ def remove_export_policy_rule(instance, rule_index):
     return params
 
 
-# -- snapshot
+# -- volume replication --
+
+# authorize replication (targets source volume with destination volume in payload)
+def authorize_replication(cmd, client, resource_group_name, account_name, pool_name, volume_name, remote_volume_resource_id):
+    return client.authorize_replication(resource_group_name, account_name, pool_name, volume_name, remote_volume_resource_id)
 
 
-def create_snapshot(client, resource_group_name, account_name, pool_name, volume_name, snapshot_name, location):
+# -- snapshot --
+
+def create_snapshot(cmd, client, account_name, pool_name, volume_name, snapshot_name, resource_group_name, location):
     body = Snapshot(location=location)
-    return client.begin_create(resource_group_name, account_name, pool_name, volume_name, snapshot_name, body)
+    return client.create(resource_group_name, account_name, pool_name, volume_name, snapshot_name, body.location)
 
 
 # -- snapshot policies --
@@ -324,7 +309,7 @@ def create_snapshot_policy(client, resource_group_name, account_name, snapshot_p
                                          hour=monthly_hour, days_of_month=monthly_days),
         enabled=enabled,
         tags=tags)
-    return client.create(resource_group_name, account_name, snapshot_policy_name, body)
+    return client.create(body, resource_group_name, account_name, snapshot_policy_name)
 
 
 def patch_snapshot_policy(client, resource_group_name, account_name, snapshot_policy_name, location,
@@ -342,14 +327,12 @@ def patch_snapshot_policy(client, resource_group_name, account_name, snapshot_po
         monthly_schedule=MonthlySchedule(snapshots_to_keep=monthly_snapshots, minute=monthly_minute,
                                          hour=monthly_hour, days_of_month=monthly_days),
         enabled=enabled)
-    return client.begin_update(resource_group_name, account_name, snapshot_policy_name, body)
+    return client.update(body, resource_group_name, account_name, snapshot_policy_name)
 
 
-# -- backup --
+def list_volumes(client, account_name, resource_group_name, snapshot_policy_name):
+    return client.list_volumes(resource_group_name, account_name, snapshot_policy_name)
 
-def create_backup(client, resource_group_name, account_name, pool_name, volume_name, backup_name, location):
-    body = Backup(location=location)
-    return client.begin_create(resource_group_name, account_name, pool_name, volume_name, backup_name, body)
 
 # -- backup policies --
 
@@ -365,10 +348,10 @@ def create_backup_policy(client, resource_group_name, account_name, backup_polic
         yearly_backups_to_keep=yearly_backups,
         enabled=enabled,
         tags=tags)
-    return client.begin_create(resource_group_name, account_name, backup_policy_name, body)
+    return client.create(resource_group_name, account_name, backup_policy_name, body)
 
 
-def patch_backup_policy(client, resource_group_name, account_name, backup_policy_name, location=None,
+def patch_backup_policy(client, resource_group_name, account_name, backup_policy_name, location,
                         daily_backups=0, weekly_backups=0, monthly_backups=0,
                         yearly_backups=0, enabled=False, tags=None):
     body = BackupPolicyPatch(

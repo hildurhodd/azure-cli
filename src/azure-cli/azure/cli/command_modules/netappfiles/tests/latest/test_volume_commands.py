@@ -60,16 +60,12 @@ class AzureNetAppFilesVolumeServiceScenarioTest(ScenarioTest):
     def wait_for_replication_status(self, target_state, rg_r, account_name_r, pool_name_r, volume_name_r):
         # python isn't good at do-while loops but loop until we get the target state
         attempts = 0
-        if (self.is_live or self.in_recording) and target_state is "Mirrored":
-            time.sleep(20)
-        replication_status = self.cmd("az netappfiles volume replication status -g %s -a %s -p %s -v %s" %
-                                      (rg_r, account_name_r, pool_name_r, volume_name_r)).get_output_in_json()
+        replication_status = self.cmd("az netappfiles volume replication status -g %s -a %s -p %s -v %s" % (rg_r, account_name_r, pool_name_r, volume_name_r)).get_output_in_json()
 
         while attempts < 10:
             attempts += 1
-            replication_status = self.cmd("az netappfiles volume replication status -g %s -a %s -p %s -v %s" %
-                                          (rg_r, account_name_r, pool_name_r, volume_name_r)).get_output_in_json()
-            if replication_status['mirrorState'] == target_state:
+            replication_status = self.cmd("az netappfiles volume replication status -g %s -a %s -p %s -v %s" % (rg_r, account_name_r, pool_name_r, volume_name_r)).get_output_in_json()
+            if(replication_status['mirrorState'] == target_state):
                 break
             if self.is_live or self.in_recording:
                 time.sleep(60)
@@ -141,7 +137,7 @@ class AzureNetAppFilesVolumeServiceScenarioTest(ScenarioTest):
 
     @unittest.skip('Volume Replication is not permitted')
     @ResourceGroupPreparer(name_prefix='cli_netappfiles_test_volume_')
-    @ResourceGroupPreparer(name_prefix='cli_netappfiles_test_volume2_', parameter_name='replication_resourcegroup')
+    @ResourceGroupPreparer(name_prefix='cli_netappf_test_volume2_', parameter_name='replication_resourcegroup')
     def test_perform_replication(self, resource_group, replication_resourcegroup):
         # create source volume
         account_name = self.create_random_name(prefix='cli-acc-', length=24)
@@ -172,7 +168,7 @@ class AzureNetAppFilesVolumeServiceScenarioTest(ScenarioTest):
         dst_volume = self.cmd("az netappfiles volume create --resource-group %s --account-name %s --pool-name %s --volume-name %s -l %s %s --file-path %s --vnet %s --subnet %s --volume-type %s --endpoint-type %s --replication-schedule %s --remote-volume-resource-id %s" % (rg_r, account_name_r, pool_name_r, volume_name_r, DP_RG_LOCATION, VOLUME_DEFAULT, file_path, vnet_name, subnet_id, "DataProtection", "dst", "_10minutely", src_volume['id'])).get_output_in_json()
         assert dst_volume['dataProtection'] is not None
         assert dst_volume['id'] is not None
-        time.sleep(90)
+        time.sleep(2)
 
         # approve
         self.cmd("az netappfiles volume replication approve -g %s -a %s -p %s -v %s --remote-volume-resource-id %s" % (rg, account_name, pool_name, volume_name, dst_volume['id']))
@@ -192,8 +188,7 @@ class AzureNetAppFilesVolumeServiceScenarioTest(ScenarioTest):
 
         # delete
         self.cmd("az netappfiles volume replication remove -g %s -a %s -p %s -v %s" % (rg_r, account_name_r, pool_name_r, volume_name_r))
-        if self.is_live or self.in_recording:
-            time.sleep(2)
+        time.sleep(2)
 
     @ResourceGroupPreparer(name_prefix='cli_netappfiles_test_volume_')
     def test_list_volumes(self):
