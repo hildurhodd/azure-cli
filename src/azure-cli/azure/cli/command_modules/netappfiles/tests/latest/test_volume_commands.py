@@ -60,12 +60,15 @@ class AzureNetAppFilesVolumeServiceScenarioTest(ScenarioTest):
     def wait_for_replication_status(self, target_state, rg_r, account_name_r, pool_name_r, volume_name_r):
         # python isn't good at do-while loops but loop until we get the target state
         attempts = 0
-        replication_status = self.cmd("az netappfiles volume replication status -g %s -a %s -p %s -v %s" % (rg_r, account_name_r, pool_name_r, volume_name_r)).get_output_in_json()
-
+        if (self.is_live or self.in_recording) and target_state is "Mirrored":
+            time.sleep(20)
+        replication_status = self.cmd("az netappfiles volume replication status -g %s -a %s -p %s -v %s" %
+                                      (rg_r, account_name_r, pool_name_r, volume_name_r)).get_output_in_json()
         while attempts < 10:
             attempts += 1
-            replication_status = self.cmd("az netappfiles volume replication status -g %s -a %s -p %s -v %s" % (rg_r, account_name_r, pool_name_r, volume_name_r)).get_output_in_json()
-            if(replication_status['mirrorState'] == target_state):
+            replication_status = self.cmd("az netappfiles volume replication status -g %s -a %s -p %s -v %s" %
+                                          (rg_r, account_name_r, pool_name_r, volume_name_r)).get_output_in_json()
+            if replication_status['mirrorState'] == target_state:
                 break
             if self.is_live or self.in_recording:
                 time.sleep(60)
@@ -168,7 +171,9 @@ class AzureNetAppFilesVolumeServiceScenarioTest(ScenarioTest):
         dst_volume = self.cmd("az netappfiles volume create --resource-group %s --account-name %s --pool-name %s --volume-name %s -l %s %s --file-path %s --vnet %s --subnet %s --volume-type %s --endpoint-type %s --replication-schedule %s --remote-volume-resource-id %s" % (rg_r, account_name_r, pool_name_r, volume_name_r, DP_RG_LOCATION, VOLUME_DEFAULT, file_path, vnet_name, subnet_id, "DataProtection", "dst", "_10minutely", src_volume['id'])).get_output_in_json()
         assert dst_volume['dataProtection'] is not None
         assert dst_volume['id'] is not None
-        time.sleep(2)
+
+        if self.is_live or self.in_recording:
+            time.sleep(90)
 
         # approve
         self.cmd("az netappfiles volume replication approve -g %s -a %s -p %s -v %s --remote-volume-resource-id %s" % (rg, account_name, pool_name, volume_name, dst_volume['id']))
@@ -188,7 +193,8 @@ class AzureNetAppFilesVolumeServiceScenarioTest(ScenarioTest):
 
         # delete
         self.cmd("az netappfiles volume replication remove -g %s -a %s -p %s -v %s" % (rg_r, account_name_r, pool_name_r, volume_name_r))
-        time.sleep(2)
+        if self.is_live or self.in_recording:
+            time.sleep(2)
 
     @ResourceGroupPreparer(name_prefix='cli_netappfiles_test_volume_')
     def test_list_volumes(self):
@@ -292,7 +298,7 @@ class AzureNetAppFilesVolumeServiceScenarioTest(ScenarioTest):
         assert len(vol_with_export_policy['exportPolicy']['rules']) == 2
 
     @ResourceGroupPreparer(name_prefix='cli_netappfiles_test_volume_')
-    def test_export_policy_non_default(self):
+    def test_non_default_export_policy(self):
         # tests that adding export policy works with non-default service level/usage threshold
         account_name = self.create_random_name(prefix='cli-acc-', length=24)
         pool_name = self.create_random_name(prefix='cli-pool-', length=24)
@@ -407,5 +413,5 @@ class AzureNetAppFilesVolumeServiceScenarioTest(ScenarioTest):
                           "--volume-name %s -l %s %s --file-path %s --vnet %s --subnet %s "
                           "--smb-encryption %s --smb-continuously-avl %s --encryption-key-source %s" %
                           (account_name, pool_name, volume_name, RG_LOCATION, VOLUME_DEFAULT, volume_name, vnet_name,
-                           subnet_name, True, True, "Microsoft.NetApp")).get_output_in_json()
+                           subnet_name, True, False, "Microsoft.NetApp")).get_output_in_json()
         assert volume['name'] == account_name + '/' + pool_name + '/' + volume_name

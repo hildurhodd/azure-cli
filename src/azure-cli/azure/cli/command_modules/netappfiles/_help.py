@@ -170,6 +170,34 @@ examples:
         az netappfiles account backup list -g mygroup --account-name myaccountname
 """
 
+helps['netappfiles account backup show'] = """
+type: command
+short-summary: Get Backup for a Netapp Files (ANF) Account.
+parameters:
+  - name: --account-name -a
+    short-summary: The name of the ANF account
+  - name: --backup-name
+    short-summary: The name of the backup
+examples:
+  - name: Get a list of all ANF account backup
+    text: >
+        az netappfiles account backup show -g mygroup --account-name myaccountname --backup-name mybackupname
+"""
+
+helps['netappfiles account backup delete'] = """
+type: command
+short-summary: Delete Backup for a Netapp Files (ANF) Account.
+parameters:
+  - name: --account-name -a
+    short-summary: The name of the ANF account
+  - name: --backup-name
+    short-summary: The name of the backup
+examples:
+  - name: Get a list of all ANF account backup
+    text: >
+        az netappfiles account backup delete -g mygroup --account-name myaccountname --backup-name mybackupname
+"""
+
 
 helps['netappfiles account backup-policy'] = """
 type: group

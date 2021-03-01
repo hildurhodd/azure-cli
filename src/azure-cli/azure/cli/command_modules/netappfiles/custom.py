@@ -351,9 +351,9 @@ def create_backup_policy(client, resource_group_name, account_name, backup_polic
     return client.create(resource_group_name, account_name, backup_policy_name, body)
 
 
-def patch_backup_policy(client, resource_group_name, account_name, backup_policy_name, location,
-                        daily_backups=0, weekly_backups=0, monthly_backups=0,
-                        yearly_backups=0, enabled=False, tags=None):
+def patch_backup_policy(client, resource_group_name, account_name, backup_policy_name, location=None,
+                        daily_backups=None, weekly_backups=None, monthly_backups=None,
+                        yearly_backups=None, enabled=False, tags=None):
     body = BackupPolicyPatch(
         location=location,
         daily_backups_to_keep=daily_backups,
