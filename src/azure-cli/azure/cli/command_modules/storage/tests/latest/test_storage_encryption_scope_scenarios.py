@@ -32,12 +32,11 @@ class StorageAccountEncryptionTests(StorageScenarioMixin, ScenarioTest):
             self.cmd("storage account encryption-scope update --account-name {sa} -g {rg} -n {encryption} -u keyuri")
 
         # Create with default Microsoft.Storage key source
-        self.cmd("storage account encryption-scope create -i --account-name {sa} -g {rg} -n {encryption}", checks=[
+        self.cmd("storage account encryption-scope create --account-name {sa} -g {rg} -n {encryption}", checks=[
             JMESPathCheck("name", self.kwargs["encryption"]),
             JMESPathCheck("resourceGroup", self.kwargs["rg"]),
             JMESPathCheck("source", "Microsoft.Storage"),
-            JMESPathCheck("state", "Enabled"),
-            JMESPathCheck("requireInfrastructureEncryption", True)
+            JMESPathCheck("state", "Enabled")
         ])
 
         # Show properties of specified encryption scope
@@ -46,8 +45,7 @@ class StorageAccountEncryptionTests(StorageScenarioMixin, ScenarioTest):
             JMESPathCheck("resourceGroup", self.kwargs["rg"]),
             JMESPathCheck("source", "Microsoft.Storage"),
             JMESPathCheck("state", "Enabled"),
-            JMESPathCheck("keyVaultProperties.keyUri", None),
-            JMESPathCheck("requireInfrastructureEncryption", True)
+            JMESPathCheck("keyVaultProperties.keyUri", None)
         ])
 
         # List encryption scopes in storage account

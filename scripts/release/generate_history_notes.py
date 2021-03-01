@@ -24,7 +24,6 @@ base_url = 'https://api.github.com/repos/azure/azure-cli'
 commit_pr_url = '{}/commits/commit_id/pulls'.format(base_url)
 
 history_line_breaker = '==============='
-# A dict of {component name:list of notes} pairs
 history_notes = {}
 
 # key is lower case and removed spaces of a component
@@ -34,7 +33,7 @@ customized_dict = {
     "appconfig": "App Config",
 }
 
-# This dict will be filled with all historical components.
+# This dict will be filled with all historical compenents.
 # key is lower case and removed spaces of a component
 # value is the recommended format of a component, when there're multiple formats,
 # the one with spaces will be picked, i.e. pick 'Key Vault' over 'KeyVault'.
@@ -55,7 +54,6 @@ def get_component_dict():
                         component_dict[key] = comp
                 else:
                     component_dict[key] = comp
-    print('Component name mappings:')
     print(component_dict)
 
 def generate_history_notes():
@@ -116,25 +114,19 @@ def modify_history_file(file: fileinput.FileInput, new_history: str):
 
 
 def construct_cli_history(component: str):
-    history = ['**{}**\n'.format(component)]
-    non_breaking_change_notes = []
+    history = '**{}**\n\n'.format(component)
     for note in history_notes[component]:
-        if 'BREAKING CHANGE' in note.upper():
-            history.append('* {}'.format(note))
-        else:
-            non_breaking_change_notes.append(note)
-    for note in non_breaking_change_notes:
-        history.append('* {}'.format(note))
-    history.append('\n')
-    return '\n'.join(history)
+        history += '* {}\n'.format(note)
+    history += '\n'
+    return history
 
 
 def construct_core_history(component: str):
-    history = []
+    history = ''
     for note in history_notes[component]:
-        history.append('* {}'.format(note))
-    history.append('\n')
-    return '\n'.join(history)
+        history += '* {}\n'.format(note)
+    history += '\n'
+    return history
 
 
 def get_commits():

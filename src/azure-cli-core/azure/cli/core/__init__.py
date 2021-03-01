@@ -6,7 +6,7 @@
 
 from __future__ import print_function
 
-__version__ = "2.20.0"
+__version__ = "2.18.0"
 
 import os
 import sys
@@ -35,7 +35,7 @@ EVENT_FAILED_EXTENSION_LOAD = 'MainLoader.OnFailedExtensionLoad'
 # Modules that will always be loaded. They don't expose commands but hook into CLI core.
 ALWAYS_LOADED_MODULES = []
 # Extensions that will always be loaded if installed. They don't expose commands but hook into CLI core.
-ALWAYS_LOADED_EXTENSIONS = ['azext_ai_examples', 'azext_next']
+ALWAYS_LOADED_EXTENSIONS = ['azext_ai_examples']
 
 
 def _configure_knack():
@@ -100,11 +100,8 @@ class AzCli(CLI):
 
         self.progress_controller = None
 
-        if self.enable_color:
-            theme = self.config.get('core', 'theme', fallback='dark')
-        else:
-            theme = 'none'
-        format_styled_text.theme = theme
+        if not self.enable_color:
+            format_styled_text.theme = 'none'
 
     def refresh_request_id(self):
         """Assign a new random GUID as x-ms-client-request-id

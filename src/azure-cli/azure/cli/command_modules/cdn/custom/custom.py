@@ -27,17 +27,13 @@ from azure.mgmt.cdn.models import (Endpoint, SkuName, EndpointUpdateParameters, 
                                    DeliveryRuleResponseHeaderAction, DeliveryRuleCacheKeyQueryStringAction,
                                    CacheKeyQueryStringActionParameters, UrlRedirectAction,
                                    DeliveryRuleAction, UrlRedirectActionParameters,
-                                   UrlRewriteAction, UrlRewriteActionParameters, ErrorResponseException)
+                                   UrlRewriteAction, UrlRewriteActionParameters)
 
 from azure.mgmt.cdn.operations import (OriginsOperations, OriginGroupsOperations)
 
 from azure.cli.core.util import (sdk_no_wait)
-from azure.cli.core.azclierror import (ResourceNotFoundError)
-
 from knack.util import CLIError
 from knack.log import get_logger
-
-from msrest.polling import LROPoller, NoPolling
 
 logger = get_logger(__name__)
 
@@ -65,41 +61,7 @@ def list_profiles(client, resource_group_name=None):
     profiles = client.profiles
     profile_list = profiles.list_by_resource_group(resource_group_name=resource_group_name) \
         if resource_group_name else profiles.list()
-
-    return [profile for profile in profile_list if profile.sku.name not in
-            (SkuName.premium_azure_front_door, SkuName.standard_azure_front_door)]
-
-
-def get_profile(client, resource_group_name, profile_name):
-    profile = client.profiles.get(resource_group_name, profile_name)
-    if profile.sku.name in (SkuName.premium_azure_front_door, SkuName.standard_azure_front_door):
-        # Workaround to make the behavior consist with true "Not Found"
-        logger.warning('Standard_AzureFrontDoor and Premium_AzureFrontDoor are only supported for AFD profiles')
-        raise ResourceNotFoundError("Operation returned an invalid status code 'Not Found'")
-
-    return profile
-
-
-def delete_profile(client, resource_group_name, profile_name):
-    profile = None
-    try:
-        profile = client.profiles.get(resource_group_name, profile_name)
-    except ErrorResponseException as e:
-        props = getattr(e.inner_exception, 'additional_properties', {})
-        if not isinstance(props, dict) or not isinstance(props.get('error'), dict):
-            raise e
-        props = props['error']
-        if props.get('code') != 'ResourceNotFound':
-            raise e
-
-    if profile is None or profile.sku.name in (SkuName.premium_azure_front_door, SkuName.standard_azure_front_door):
-        def get_long_running_output(_):
-            return None
-
-        logger.warning('Standard_AzureFrontDoor and Premium_AzureFrontDoor are only supported for AFD profiles')
-        return LROPoller(client, None, get_long_running_output, NoPolling())
-
-    return client.profiles.delete(resource_group_name, profile_name)
+    return list(profile_list)
 
 
 def update_endpoint(instance,
@@ -275,14 +237,14 @@ def create_action(action_name, cache_behavior=None, cache_duration=None, header_
                 cache_behavior=cache_behavior,
                 cache_duration=cache_duration
             ))
-    if action_name in ('RequestHeader', 'ModifyRequestHeader'):
+    if action_name == 'RequestHeader':
         return DeliveryRuleRequestHeaderAction(
             parameters=HeaderActionParameters(
                 header_action=header_action,
                 header_name=header_name,
                 value=header_value
             ))
-    if action_name in ('ResponseHeader', 'ModifyResponseHeader'):
+    if action_name == 'ResponseHeader':
         return DeliveryRuleResponseHeaderAction(
             parameters=HeaderActionParameters(
                 header_action=header_action,
@@ -653,10 +615,6 @@ def create_origin(client: OriginsOperations,
 
 
 def update_profile(instance, tags=None):
-    if instance.sku.name in (SkuName.premium_azure_front_door, SkuName.standard_azure_front_door):
-        logger.warning('Standard_AzureFrontDoor and Premium_AzureFrontDoor are only supported for AFD profiles')
-        raise ResourceNotFoundError("Operation returned an invalid status code 'Not Found'")
-
     params = ProfileUpdateParameters(tags=tags)
     _update_mapper(instance, params, ['tags'])
     return params

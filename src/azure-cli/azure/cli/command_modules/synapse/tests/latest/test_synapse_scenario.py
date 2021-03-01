@@ -5,7 +5,6 @@
 
 
 import os
-import unittest
 
 from azure.cli.testsdk import ScenarioTest, ResourceGroupPreparer, record_only
 
@@ -857,7 +856,7 @@ class SynapseScenarioTests(ScenarioTest):
                 self.check('provisioningState', 'Succeeded')
             ])
 
-    # @record_only()
+    @record_only()
     @ResourceGroupPreparer(name_prefix='synapse-cli', random_name_length=16)
     def test_linked_service(self):
         self.kwargs.update({
@@ -1092,8 +1091,7 @@ class SynapseScenarioTests(ScenarioTest):
         self.cmd(
             'az synapse trigger stop --workspace-name {workspace} --name {tumbling-window-trigger}')
 
-    # @record_only()
-    @unittest.skip('(InvalidTokenIssuer) Token Authentication failed with SecurityTokenInvalidIssuerException')
+    @record_only()
     def test_data_flow(self):
         self.kwargs.update({
             'workspace': 'testsynapseworkspace',

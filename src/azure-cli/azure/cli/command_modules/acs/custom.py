@@ -117,7 +117,6 @@ from ._consts import CONST_INGRESS_APPGW_ADDON_NAME
 from ._consts import CONST_INGRESS_APPGW_APPLICATION_GATEWAY_ID, CONST_INGRESS_APPGW_APPLICATION_GATEWAY_NAME
 from ._consts import CONST_INGRESS_APPGW_SUBNET_CIDR, CONST_INGRESS_APPGW_SUBNET_ID
 from ._consts import CONST_INGRESS_APPGW_WATCH_NAMESPACE
-from ._consts import CONST_CONFCOM_ADDON_NAME, CONST_ACC_SGX_QUOTE_HELPER_ENABLED
 from ._consts import ADDONS
 from ._consts import CONST_CANIPULL_IMAGE
 
@@ -1503,10 +1502,8 @@ def aks_check_acr(cmd, client, resource_group_name, name, acr):
         jsonS, _ = output.communicate()
         kubectl_version = json.loads(jsonS)
         kubectl_minor_version = int(kubectl_version["clientVersion"]["minor"])
-        kubectl_server_minor_version = int(kubectl_version["serverVersion"]["minor"])
-        kubectl_server_patch = int(kubectl_version["serverVersion"]["gitVersion"].split(".")[-1])
-        if kubectl_server_minor_version < 17 or (kubectl_server_minor_version == 17 and kubectl_server_patch < 14):
-            logger.warning('There is a known issue for Kubernetes versions < 1.17.14 when connecting to '
+        if int(kubectl_version["serverVersion"]["minor"]) < 17:
+            logger.warning('There is a known issue for Kuberentes versions < 1.17 when connecting to '
                            'ACR using MSI. See https://github.com/kubernetes/kubernetes/pull/96355 for'
                            'more information.')
     except subprocess.CalledProcessError as err:
@@ -1893,7 +1890,6 @@ def aks_create(cmd, client, resource_group_name, name, ssh_key_value,  # pylint:
                appgw_id=None,
                appgw_subnet_id=None,
                appgw_watch_namespace=None,
-               enable_sgxquotehelper=False,
                no_wait=False,
                yes=False):
     _validate_ssh_key(no_ssh_key, ssh_key_value)
@@ -2087,7 +2083,6 @@ def aks_create(cmd, client, resource_group_name, name, ssh_key_value,  # pylint:
         appgw_id,
         appgw_subnet_id,
         appgw_watch_namespace,
-        enable_sgxquotehelper
     )
     monitoring = False
     if CONST_MONITORING_ADDON_NAME in addon_profiles:
@@ -2283,7 +2278,6 @@ def aks_enable_addons(cmd, client, resource_group_name, name, addons,
                       appgw_id=None,
                       appgw_subnet_id=None,
                       appgw_watch_namespace=None,
-                      enable_sgxquotehelper=False,
                       no_wait=False):
     instance = client.get(resource_group_name, name)
     subscription_id = get_subscription_id(cmd.cli_ctx)
@@ -2296,7 +2290,6 @@ def aks_enable_addons(cmd, client, resource_group_name, name, addons,
                               appgw_id=appgw_id,
                               appgw_subnet_id=appgw_subnet_id,
                               appgw_watch_namespace=appgw_watch_namespace,
-                              enable_sgxquotehelper=enable_sgxquotehelper,
                               no_wait=no_wait)
 
     enable_monitoring = CONST_MONITORING_ADDON_NAME in instance.addon_profiles \
@@ -2772,7 +2765,6 @@ def _update_addons(cmd, instance, subscription_id, resource_group_name, name, ad
                    appgw_id=None,
                    appgw_subnet_id=None,
                    appgw_watch_namespace=None,
-                   enable_sgxquotehelper=False,
                    no_wait=False):
     # parse the comma-separated addons argument
     addon_args = addons.split(',')
@@ -2841,16 +2833,6 @@ def _update_addons(cmd, instance, subscription_id, resource_group_name, name, ad
                     addon_profile.config[CONST_INGRESS_APPGW_SUBNET_ID] = appgw_subnet_id
                 if appgw_watch_namespace is not None:
                     addon_profile.config[CONST_INGRESS_APPGW_WATCH_NAMESPACE] = appgw_watch_namespace
-            elif addon == CONST_CONFCOM_ADDON_NAME:
-                if addon_profile.enabled:
-                    raise ValidationError('The confcom addon is already enabled for this managed cluster.',
-                                          recommendation='To change confcom configuration, run '
-                                          f'"az aks disable-addons -a confcom -n {name} -g {resource_group_name}" '
-                                          'before enabling it again.')
-                addon_profile = ManagedClusterAddonProfile(
-                    enabled=True, config={CONST_ACC_SGX_QUOTE_HELPER_ENABLED: "false"})
-                if enable_sgxquotehelper:
-                    addon_profile.config[CONST_ACC_SGX_QUOTE_HELPER_ENABLED] = "true"
             addon_profiles[addon] = addon_profile
         else:
             if addon not in addon_profiles:
@@ -2891,8 +2873,7 @@ def _handle_addons_args(cmd, addons_str, subscription_id, resource_group_name, a
                         appgw_subnet_cidr=None,
                         appgw_id=None,
                         appgw_subnet_id=None,
-                        appgw_watch_namespace=None,
-                        enable_sgxquotehelper=False):
+                        appgw_watch_namespace=None):
     if not addon_profiles:
         addon_profiles = {}
     addons = addons_str.split(',') if addons_str else []
@@ -2947,12 +2928,6 @@ def _handle_addons_args(cmd, addons_str, subscription_id, resource_group_name, a
             addon_profile.config[CONST_INGRESS_APPGW_WATCH_NAMESPACE] = appgw_watch_namespace
         addon_profiles[CONST_INGRESS_APPGW_ADDON_NAME] = addon_profile
         addons.remove('ingress-appgw')
-    if 'confcom' in addons:
-        addon_profile = ManagedClusterAddonProfile(enabled=True, config={CONST_ACC_SGX_QUOTE_HELPER_ENABLED: "false"})
-        if enable_sgxquotehelper:
-            addon_profile.config[CONST_ACC_SGX_QUOTE_HELPER_ENABLED] = "true"
-        addon_profiles[CONST_CONFCOM_ADDON_NAME] = addon_profile
-        addons.remove('confcom')
     # error out if any (unrecognized) addons remain
     if addons:
         raise CLIError('"{}" {} not recognized by the --enable-addons argument.'.format(
@@ -3024,25 +2999,14 @@ def _ensure_default_log_analytics_workspace_for_monitoring(cmd, subscription_id,
         "westcentralus": "EUS",
         "westeurope": "WEU",
         "westus": "WUS",
-        "westus2": "WUS2",
-        "brazilsouth": "CQ",
-        "brazilsoutheast": "BRSE",
-        "norwayeast": "NOE",
-        "southafricanorth": "JNB",
-        "northcentralus": "NCUS",
-        "uaenorth": "DXB",
-        "germanywestcentral": "DEWC",
-        "ukwest": "WUK",
-        "switzerlandnorth": "CHN",
-        "switzerlandwest": "CHW",
-        "uaecentral": "AUH"
+        "westus2": "WUS2"
     }
     AzureCloudRegionToOmsRegionMap = {
         "australiacentral": "australiacentral",
         "australiacentral2": "australiacentral",
         "australiaeast": "australiaeast",
         "australiasoutheast": "australiasoutheast",
-        "brazilsouth": "brazilsouth",
+        "brazilsouth": "southcentralus",
         "canadacentral": "canadacentral",
         "canadaeast": "canadacentral",
         "centralus": "centralus",
@@ -3056,30 +3020,20 @@ def _ensure_default_log_analytics_workspace_for_monitoring(cmd, subscription_id,
         "japanwest": "japaneast",
         "koreacentral": "koreacentral",
         "koreasouth": "koreacentral",
-        "northcentralus": "northcentralus",
+        "northcentralus": "eastus",
         "northeurope": "northeurope",
-        "southafricanorth": "southafricanorth",
-        "southafricawest": "southafricanorth",
+        "southafricanorth": "westeurope",
+        "southafricawest": "westeurope",
         "southcentralus": "southcentralus",
         "southeastasia": "southeastasia",
         "southindia": "centralindia",
         "uksouth": "uksouth",
-        "ukwest": "ukwest",
+        "ukwest": "uksouth",
         "westcentralus": "eastus",
         "westeurope": "westeurope",
         "westindia": "centralindia",
         "westus": "westus",
-        "westus2": "westus2",
-        "norwayeast": "norwayeast",
-        "norwaywest": "norwayeast",
-        "switzerlandnorth": "switzerlandnorth",
-        "switzerlandwest": "switzerlandwest",
-        "uaenorth": "uaenorth",
-        "germanywestcentral": "germanywestcentral",
-        "germanynorth": "germanywestcentral",
-        "uaecentral": "uaecentral",
-        "eastus2euap": "eastus2euap",
-        "brazilsoutheast": "brazilsoutheast"
+        "westus2": "westus2"
     }
 
     # mapping for azure china cloud
@@ -3099,13 +3053,10 @@ def _ensure_default_log_analytics_workspace_for_monitoring(cmd, subscription_id,
 
     # mapping for azure us governmner cloud
     AzureFairfaxLocationToOmsRegionCodeMap = {
-        "usgovvirginia": "USGV",
-        "usgovarizona": "PHX"
+        "usgovvirginia": "USGV"
     }
     AzureFairfaxRegionToOmsRegionMap = {
-        "usgovvirginia": "usgovvirginia",
-        "usgovtexas": "usgovvirginia",
-        "usgovarizona": "usgovarizona"
+        "usgovvirginia": "usgovvirginia"
     }
 
     rg_location = _get_rg_location(cmd.cli_ctx, resource_group_name)
@@ -4012,14 +3963,14 @@ def openshift_create(cmd, client, resource_group_name, name,  # pylint: disable=
 
 
 def openshift_show(cmd, client, resource_group_name, name):
-    logger.warning('The az openshift command is deprecated and has been replaced by az aro for ARO 4 clusters.  See http://aka.ms/aro/4 for information on switching to ARO 4.')  # pylint: disable=line-too-long
+    logger.warning('Support for existing ARO 3.11 clusters ends June 2022. Please see aka.ms/aro/4 for information on switching to ARO 4.')  # pylint: disable=line-too-long
 
     mc = client.get(resource_group_name, name)
     return _remove_osa_nulls([mc])[0]
 
 
 def openshift_scale(cmd, client, resource_group_name, name, compute_count, no_wait=False):
-    logger.warning('The az openshift command is deprecated and has been replaced by az aro for ARO 4 clusters.  See http://aka.ms/aro/4 for information on switching to ARO 4.')  # pylint: disable=line-too-long
+    logger.warning('Support for existing ARO 3.11 clusters ends June 2022. Please see aka.ms/aro/4 for information on switching to ARO 4.')  # pylint: disable=line-too-long
 
     instance = client.get(resource_group_name, name)
     # TODO: change this approach when we support multiple agent pools.
@@ -4039,7 +3990,7 @@ def openshift_scale(cmd, client, resource_group_name, name, compute_count, no_wa
 
 
 def openshift_monitor_enable(cmd, client, resource_group_name, name, workspace_id, no_wait=False):
-    logger.warning('The az openshift command is deprecated and has been replaced by az aro for ARO 4 clusters.  See http://aka.ms/aro/4 for information on switching to ARO 4.')  # pylint: disable=line-too-long
+    logger.warning('Support for existing ARO 3.11 clusters ends June 2022. Please see aka.ms/aro/4 for information on switching to ARO 4.')  # pylint: disable=line-too-long
 
     instance = client.get(resource_group_name, name)
     workspace_id = _format_workspace_id(workspace_id)
@@ -4050,7 +4001,7 @@ def openshift_monitor_enable(cmd, client, resource_group_name, name, workspace_i
 
 
 def openshift_monitor_disable(cmd, client, resource_group_name, name, no_wait=False):
-    logger.warning('The az openshift command is deprecated and has been replaced by az aro for ARO 4 clusters.  See http://aka.ms/aro/4 for information on switching to ARO 4.')  # pylint: disable=line-too-long
+    logger.warning('Support for existing ARO 3.11 clusters ends June 2022. Please see aka.ms/aro/4 for information on switching to ARO 4.')  # pylint: disable=line-too-long
 
     instance = client.get(resource_group_name, name)
     monitor_profile = OpenShiftManagedClusterMonitorProfile(enabled=False, workspace_resource_id=None)  # pylint: disable=line-too-long

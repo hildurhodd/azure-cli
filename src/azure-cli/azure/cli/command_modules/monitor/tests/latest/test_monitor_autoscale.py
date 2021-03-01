@@ -5,7 +5,6 @@
 
 from azure.cli.testsdk import LiveScenarioTest, ScenarioTest, ResourceGroupPreparer, record_only
 from knack.util import CLIError
-from azure_devtools.scenario_tests import AllowLargeResponse
 
 
 class TestMonitorAutoscaleScenario(ScenarioTest):
@@ -318,7 +317,6 @@ class TestMonitorAutoscaleTimezones(LiveScenarioTest):
 
 
 class TestMonitorAutoscaleComplexRules(ScenarioTest):
-    @AllowLargeResponse()
     def setUp(self):
         super(TestMonitorAutoscaleComplexRules, self).setUp()
         self.cmd('extension add -n spring-cloud')
@@ -328,7 +326,6 @@ class TestMonitorAutoscaleComplexRules(ScenarioTest):
         super(TestMonitorAutoscaleComplexRules, self).tearDown()
 
 #    @record_only()
-    @AllowLargeResponse()
     @ResourceGroupPreparer(name_prefix='cli_test_monitor_autoscale_rule_for_spring_cloud', location='westus2')
     def test_monitor_autoscale_rule_for_spring_cloud(self, resource_group):
         self.kwargs.update({

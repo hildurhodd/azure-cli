@@ -2,7 +2,6 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
-import unittest
 
 from azure.cli.testsdk import ScenarioTest, ResourceGroupPreparer
 from azure.cli.testsdk.decorators import serial_test
@@ -138,7 +137,6 @@ class AzureNetAppFilesVolumeServiceScenarioTest(ScenarioTest):
         self.cmd("az netappfiles volume delete --resource-group %s --account-name %s --pool-name %s --volume-name %s" % (rg, account_name, pool_name, volume_name))
         self.cmd("az group delete --yes -n %s" % (subnet_rg))
 
-    @unittest.skip('Volume Replication is not permitted')
     @ResourceGroupPreparer(name_prefix='cli_netappfiles_test_volume_')
     @ResourceGroupPreparer(name_prefix='cli_netappf_test_volume2_', parameter_name='replication_resourcegroup')
     def test_perform_replication(self, resource_group, replication_resourcegroup):

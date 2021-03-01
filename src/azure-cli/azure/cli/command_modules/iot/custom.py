@@ -1091,7 +1091,8 @@ def iot_central_app_list(client, resource_group_name=None):
 
 
 def iot_central_app_update(client, app_name, parameters, resource_group_name):
-    return client.apps.update(resource_group_name, app_name, parameters)
+    etag = parameters.additional_properties['etag']
+    return client.apps.update(resource_group_name, app_name, parameters, {'IF-MATCH': etag})
 
 
 def _ensure_location(cli_ctx, resource_group_name, location):

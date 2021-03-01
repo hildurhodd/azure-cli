@@ -44,11 +44,9 @@ def get_stats(client, resource_group_name, account_name, share_name):
                       expand='stats')
 
 
-def list_share_rm(cmd, client, resource_group_name, account_name, include_deleted=None):
-    ListSharesExpand = cmd.get_models('ListSharesExpand')
+def list_share_rm(client, resource_group_name, account_name, include_deleted=None):
     if include_deleted:
-        return client.list(resource_group_name=resource_group_name, account_name=account_name,
-                           expand=ListSharesExpand.DELETED)
+        return client.list(resource_group_name=resource_group_name, account_name=account_name)
 
     return client.list(resource_group_name=resource_group_name, account_name=account_name, expand=None)
 

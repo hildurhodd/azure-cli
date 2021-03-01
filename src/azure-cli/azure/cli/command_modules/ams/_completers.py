@@ -11,9 +11,7 @@ from azure.cli.command_modules.ams._sdk_utils import (get_stand_alone_presets, g
                                                       get_rentalandlease_types, get_tokens,
                                                       get_allowed_languages_for_preset,
                                                       get_protocols, get_encoding_types,
-                                                      get_allowed_resolutions, get_transcription_langauges,
-                                                      get_analysis_modes, get_stretch_mode_types,
-                                                      get_storage_authentication_allowed_values)
+                                                      get_allowed_resolutions)
 
 from azure.mgmt.media.models import EncoderNamedPreset
 
@@ -77,23 +75,3 @@ def get_mru_type_completion_list():
 def get_encoding_types_list():
     encoding_types = get_encoding_types()
     return encoding_types
-
-
-def get_allowed_transcription_languages():
-    languages = get_transcription_langauges()
-    return languages
-
-
-def get_allowed_analysis_modes():
-    modes = get_analysis_modes()
-    return modes
-
-
-def get_stretch_mode_types_list():
-    modes = get_stretch_mode_types()
-    return modes
-
-
-def get_storage_authentication_allowed_values_list():
-    values = get_storage_authentication_allowed_values()
-    return values

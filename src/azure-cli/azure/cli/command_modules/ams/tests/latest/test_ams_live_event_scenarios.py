@@ -16,7 +16,6 @@ class AmsLiveEventTests(ScenarioTest):
     def test_live_event_create(self, storage_account_for_create):
         amsname = self.create_random_name(prefix='ams', length=12)
         live_event_name = self.create_random_name(prefix='le', length=12)
-        customHostnamePrefix = self.create_random_name(prefix='custom', length=12)
 
         self.kwargs.update({
             'amsname': amsname,
@@ -24,13 +23,10 @@ class AmsLiveEventTests(ScenarioTest):
             'location': 'centralus',
             'streamingProtocol': 'RTMP',
             'liveEventName': live_event_name,
-            'encodingType': 'Standard',
+            'encodingType': 'Basic',
             'tags': 'key=value',
             'previewLocator': self.create_guid(),
-            'keyFrameInterval': 'PT2S',
-            'liveTranscriptionLanguage': 'ca-ES',
-            'customHostnamePrefix': customHostnamePrefix,
-            'stretchMode': 'AutoSize',
+            'keyFrameIntervalDuration': 'PT2S',
             'description': 'asd',
             'accessToken': '0abf356884d74b4aacbd7b1ebd3da0f7',
             'clientAccessPolicy': '@' + _get_test_data_file('clientAccessPolicy.xml'),
@@ -42,25 +38,23 @@ class AmsLiveEventTests(ScenarioTest):
             self.check('location', 'Central US')
         ])
 
-        live_event = self.cmd('az ams live-event create -a {amsname} -n {liveEventName} -g {rg} --auto-start --transcription-lang {liveTranscriptionLanguage} --streaming-protocol {streamingProtocol} --encoding-type {encodingType} --key-frame-interval {keyFrameInterval} --tags {tags} --stream-options Default LowLatency --preview-locator {previewLocator} --ips 1.2.3.4 5.6.7.8 192.168.0.0/28 --preview-ips 192.168.0.0/28 0.0.0.0 --access-token {accessToken} --description {description} --client-access-policy "{clientAccessPolicy}" --cross-domain-policy "{crossDomainPolicy}" --use-static-hostname --hostname-prefix {customHostnamePrefix} --stretch-mode {stretchMode}', checks=[
+        live_event = self.cmd('az ams live-event create -a {amsname} -n {liveEventName} -g {rg} --auto-start --streaming-protocol {streamingProtocol} --encoding-type {encodingType} --tags {tags} --stream-options Default LowLatency --preview-locator {previewLocator} --ips 1.2.3.4 5.6.7.8 192.168.0.0/28 --preview-ips 192.168.0.0/28 0.0.0.0 --key-frame-interval-duration {keyFrameIntervalDuration} --access-token {accessToken} --description {description} --client-access-policy "{clientAccessPolicy}" --cross-domain-policy "{crossDomainPolicy}" --vanity-url', checks=[
             self.check('name', '{liveEventName}'),
             self.check('location', 'Central US'),
             self.check('input.streamingProtocol', '{streamingProtocol}'),
             self.check('encoding.encodingType', '{encodingType}'),
-            self.check('encoding.keyFrameInterval', '0:00:02'),
-            self.check('encoding.stretchMode', '{stretchMode}'),
-            self.check('transcriptions[0].language', '{liveTranscriptionLanguage}'),
             self.check('length(preview.accessControl.ip.allow)', 2),
             self.check('length(input.accessControl.ip.allow)', 3),
             self.check('preview.previewLocator', '{previewLocator}'),
+            self.check('input.keyFrameIntervalDuration', '{keyFrameIntervalDuration}'),
             self.check('length(streamOptions)', 2),
             self.check('description', '{description}'),
             self.check('input.accessToken', '{accessToken}'),
-            self.check('useStaticHostname', True),
+            self.check('vanityUrl', True),
             self.check('input.accessControl.ip.allow[2].address', '192.168.0.0'),
             self.check('input.accessControl.ip.allow[2].subnetPrefixLength', '28'),
             self.check('preview.accessControl.ip.allow[0].address', '192.168.0.0'),
-            self.check('preview.accessControl.ip.allow[0].subnetPrefixLength', '28'),
+            self.check('preview.accessControl.ip.allow[0].subnetPrefixLength', '28')
         ]).get_output_in_json()
 
         self.assertIsNotNone(live_event['crossSiteAccessPolicies']['crossDomainPolicy'])
@@ -85,7 +79,7 @@ class AmsLiveEventTests(ScenarioTest):
             'location': 'southindia',
             'streamingProtocol': 'FragmentedMP4',
             'liveEventName': live_event_name,
-            'encodingType': 'Standard'
+            'encodingType': 'Basic'
         })
 
         self.cmd('az ams account create -n {amsname} -g {rg} --storage-account {storageAccount} -l {location}', checks=[
@@ -97,7 +91,7 @@ class AmsLiveEventTests(ScenarioTest):
             self.check('name', '{liveEventName}'),
             self.check('location', 'South India'),
             self.check('input.streamingProtocol', 'FragmentedMP4'),
-            self.check('encoding.encodingType', '{encodingType}')
+            self.check('encoding.encodingType', 'Basic')
         ])
 
         live_event = self.cmd('az ams live-event start -a {amsname} --name {liveEventName} -g {rg}', checks=[
@@ -111,45 +105,6 @@ class AmsLiveEventTests(ScenarioTest):
 
     @ResourceGroupPreparer()
     @StorageAccountPreparer(parameter_name='storage_account_for_create')
-    def test_live_event_standby(self, storage_account_for_create):
-        amsname = self.create_random_name(prefix='ams', length=12)
-        live_event_name = self.create_random_name(prefix='le', length=12)
-
-        self.kwargs.update({
-            'amsname': amsname,
-            'storageAccount': storage_account_for_create,
-            'location': 'southindia',
-            'streamingProtocol': 'FragmentedMP4',
-            'liveEventName': live_event_name,
-            'accessToken': '0abf356884d74b4aacbd7b1ebd3da0f7',
-            'encodingType': 'Standard'
-        })
-
-        self.cmd('az ams account create -n {amsname} -g {rg} --storage-account {storageAccount} -l {location}', checks=[
-            self.check('name', '{amsname}'),
-            self.check('location', 'South India')
-        ])
-
-        self.cmd('az ams live-event create -a {amsname} -n {liveEventName} -g {rg} --streaming-protocol {streamingProtocol} --encoding-type {encodingType} --access-token {accessToken} --tags key=value --ips AllowAll', checks=[
-            self.check('name', '{liveEventName}'),
-            self.check('location', 'South India'),
-            self.check('input.streamingProtocol', 'FragmentedMP4'),
-            self.check('encoding.encodingType', '{encodingType}')
-        ])
-
-        live_event = self.cmd('az ams live-event standby -a {amsname} --name {liveEventName} -g {rg}', checks=[
-            self.check('name', '{liveEventName}'),
-            self.check('location', 'South India'),
-            self.check('input.streamingProtocol', 'FragmentedMP4'),
-            self.check('input.accessToken', '{accessToken}'),
-        ]).get_output_in_json()
-
-        self.assertNotEquals('Stopping', live_event['resourceState'])
-        self.assertNotEquals('Stopped', live_event['resourceState'])
-        self.assertEquals('StandBy', live_event['resourceState'])
-
-    @ResourceGroupPreparer()
-    @StorageAccountPreparer(parameter_name='storage_account_for_create')
     def test_live_event_stop(self, storage_account_for_create):
         amsname = self.create_random_name(prefix='ams', length=12)
         live_event_name = self.create_random_name(prefix='le', length=12)
@@ -160,7 +115,7 @@ class AmsLiveEventTests(ScenarioTest):
             'location': 'brazilsouth',
             'streamingProtocol': 'FragmentedMP4',
             'liveEventName': live_event_name,
-            'encodingType': 'Standard'
+            'encodingType': 'Basic'
         })
 
         self.cmd('az ams account create -n {amsname} -g {rg} --storage-account {storageAccount} -l {location}', checks=[
@@ -189,7 +144,7 @@ class AmsLiveEventTests(ScenarioTest):
             'location': 'japaneast',
             'streamingProtocol': 'FragmentedMP4',
             'liveEventName': live_event_name,
-            'encodingType': 'Standard'
+            'encodingType': 'Basic'
         })
 
         self.cmd('az ams account create -n {amsname} -g {rg} --storage-account {storageAccount} -l {location}', checks=[
@@ -248,7 +203,7 @@ class AmsLiveEventTests(ScenarioTest):
             'streamingProtocol': 'FragmentedMP4',
             'liveEventName': live_event_name,
             'liveEventName2': live_event_name2,
-            'encodingType': 'Standard'
+            'encodingType': 'Basic'
         })
 
         self.cmd('az ams account create -n {amsname} -g {rg} --storage-account {storageAccount} -l {location}', checks=[
@@ -282,7 +237,7 @@ class AmsLiveEventTests(ScenarioTest):
             'streamingProtocol': 'FragmentedMP4',
             'liveEventName': live_event_name,
             'liveEventName2': live_event_name2,
-            'encodingType': 'Standard'
+            'encodingType': 'Basic'
         })
 
         self.cmd('az ams account create -n {amsname} -g {rg} --storage-account {storageAccount} -l {location}', checks=[
@@ -320,7 +275,7 @@ class AmsLiveEventTests(ScenarioTest):
             'location': 'eastus',
             'streamingProtocol': 'FragmentedMP4',
             'liveEventName': live_event_name,
-            'encodingType': 'Standard'
+            'encodingType': 'Basic'
         })
 
         self.cmd('az ams account create -n {amsname} -g {rg} --storage-account {storageAccount} -l {location}', checks=[
@@ -332,7 +287,7 @@ class AmsLiveEventTests(ScenarioTest):
             self.check('name', '{liveEventName}'),
             self.check('location', 'East US'),
             self.check('input.streamingProtocol', 'FragmentedMP4'),
-            self.check('encoding.encodingType', '{encodingType}')
+            self.check('encoding.encodingType', 'Basic')
         ])
 
         live_event = self.cmd('az ams live-event reset -a {amsname} -n {liveEventName} -g {rg}', checks=[
@@ -391,9 +346,10 @@ class AmsLiveEventTests(ScenarioTest):
             'location': 'westus',
             'streamingProtocol': 'RTMP',
             'liveEventName': live_event_name,
-            'encodingType': 'Standard',
+            'encodingType': 'Basic',
             'tags': 'key=value',
             'previewLocator': self.create_guid(),
+            'keyFrameIntervalDuration': 'PT2S',
             'description': 'asd',
             'accessToken': '0abf356884d74b4aacbd7b1ebd3da0f7',
             'clientAccessPolicy': '@' + _get_test_data_file('clientAccessPolicy.xml'),
@@ -405,7 +361,7 @@ class AmsLiveEventTests(ScenarioTest):
             self.check('location', 'West US')
         ])
 
-        self.cmd('az ams live-event create -a {amsname} -n {liveEventName} -g {rg} --streaming-protocol {streamingProtocol} --encoding-type {encodingType} --tags {tags} --stream-options Default LowLatency --preview-locator {previewLocator} --ips 1.2.3.4 5.6.7.8 9.10.11.12 --preview-ips 1.1.1.1 0.0.0.0 --access-token {accessToken} --description {description} --client-access-policy "{clientAccessPolicy}" --cross-domain-policy "{crossDomainPolicy}"')
+        self.cmd('az ams live-event create -a {amsname} -n {liveEventName} -g {rg} --streaming-protocol {streamingProtocol} --encoding-type {encodingType} --tags {tags} --stream-options Default LowLatency --preview-locator {previewLocator} --ips 1.2.3.4 5.6.7.8 9.10.11.12 --preview-ips 1.1.1.1 0.0.0.0 --key-frame-interval-duration {keyFrameIntervalDuration} --access-token {accessToken} --description {description} --client-access-policy "{clientAccessPolicy}" --cross-domain-policy "{crossDomainPolicy}" --vanity-url')
 
         self.cmd('az ams live-event show -a {amsname} -n {liveEventName} -g {rg}', checks=[
             self.check('name', '{liveEventName}'),
@@ -415,9 +371,11 @@ class AmsLiveEventTests(ScenarioTest):
             self.check('length(preview.accessControl.ip.allow)', 2),
             self.check('length(input.accessControl.ip.allow)', 3),
             self.check('preview.previewLocator', '{previewLocator}'),
+            self.check('input.keyFrameIntervalDuration', '{keyFrameIntervalDuration}'),
             self.check('length(streamOptions)', 2),
             self.check('description', '{description}'),
-            self.check('input.accessToken', '{accessToken}')
+            self.check('input.accessToken', '{accessToken}'),
+            self.check('vanityUrl', True)
         ])
 
         nonexits_live_event_name = self.create_random_name(prefix='live-event', length=20)

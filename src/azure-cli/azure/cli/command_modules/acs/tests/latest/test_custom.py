@@ -808,7 +808,6 @@ class AcsCustomCommandTest(unittest.TestCase):
         finally:
             shutil.rmtree(temp_dir)
 
-    @unittest.skip('No such file or directory')
     @mock.patch('azure.cli.command_modules.acs.custom._urlretrieve')
     @mock.patch('azure.cli.command_modules.acs.custom.logger')
     def test_k8s_install_kubelogin_with_custom_source_url(self, logger_mock, mock_url_retrieve):

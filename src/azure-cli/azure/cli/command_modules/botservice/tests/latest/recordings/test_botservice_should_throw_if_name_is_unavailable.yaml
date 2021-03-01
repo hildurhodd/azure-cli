@@ -11,8 +11,8 @@ interactions:
       Connection:
       - keep-alive
       User-Agent:
-      - python/3.8.2 (macOS-10.14.3-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
-        azure-mgmt-resource/12.0.0 Azure-SDK-For-Python AZURECLI/2.18.0
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.1
       accept-language:
       - en-US
     method: GET
@@ -72,8 +72,7 @@ interactions:
         Pacific"}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/centraluseuap","name":"centraluseuap","displayName":"Central
         US EUAP","regionalDisplayName":"(US) Central US EUAP","metadata":{"regionType":"Physical","regionCategory":"Other","geographyGroup":"US","longitude":"-93.6208","latitude":"41.5908","pairedRegion":[{"name":"eastus2euap","id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/eastus2euap"}]}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/eastus2euap","name":"eastus2euap","displayName":"East
         US 2 EUAP","regionalDisplayName":"(US) East US 2 EUAP","metadata":{"regionType":"Physical","regionCategory":"Other","geographyGroup":"US","longitude":"-78.3889","latitude":"36.6681","pairedRegion":[{"name":"centraluseuap","id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/centraluseuap"}]}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/westcentralus","name":"westcentralus","displayName":"West
-        Central US","regionalDisplayName":"(US) West Central US","metadata":{"regionType":"Physical","regionCategory":"Other","geographyGroup":"US","longitude":"-110.234","latitude":"40.890","physicalLocation":"Wyoming","pairedRegion":[{"name":"westus2","id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/westus2"}]}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/westus3","name":"westus3","displayName":"West
-        US 3","regionalDisplayName":"(US) West US 3","metadata":{"regionType":"Physical","regionCategory":"Other","geographyGroup":"US","longitude":"-112.074036","latitude":"33.448376","physicalLocation":"Phoenix","pairedRegion":[{"name":"eastus","id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/eastus"}]}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/southafricawest","name":"southafricawest","displayName":"South
+        Central US","regionalDisplayName":"(US) West Central US","metadata":{"regionType":"Physical","regionCategory":"Other","geographyGroup":"US","longitude":"-110.234","latitude":"40.890","physicalLocation":"Wyoming","pairedRegion":[{"name":"westus2","id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/westus2"}]}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/southafricawest","name":"southafricawest","displayName":"South
         Africa West","regionalDisplayName":"(Africa) South Africa West","metadata":{"regionType":"Physical","regionCategory":"Other","geographyGroup":"Africa","longitude":"18.843266","latitude":"-34.075691","physicalLocation":"Cape
         Town","pairedRegion":[{"name":"southafricanorth","id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/southafricanorth"}]}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/australiacentral","name":"australiacentral","displayName":"Australia
         Central","regionalDisplayName":"(Asia Pacific) Australia Central","metadata":{"regionType":"Physical","regionCategory":"Other","geographyGroup":"Asia
@@ -98,18 +97,16 @@ interactions:
         West","regionalDisplayName":"(Europe) UK West","metadata":{"regionType":"Physical","regionCategory":"Other","geographyGroup":"Europe","longitude":"-3.084","latitude":"53.427","physicalLocation":"Cardiff","pairedRegion":[{"name":"uksouth","id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/uksouth"}]}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/uaecentral","name":"uaecentral","displayName":"UAE
         Central","regionalDisplayName":"(Middle East) UAE Central","metadata":{"regionType":"Physical","regionCategory":"Other","geographyGroup":"Middle
         East","longitude":"54.366669","latitude":"24.466667","physicalLocation":"Abu
-        Dhabi","pairedRegion":[{"name":"uaenorth","id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/uaenorth"}]}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/brazilsoutheast","name":"brazilsoutheast","displayName":"Brazil
-        Southeast","regionalDisplayName":"(South America) Brazil Southeast","metadata":{"regionType":"Physical","regionCategory":"Other","geographyGroup":"South
-        America","longitude":"-43.2075","latitude":"-22.90278","physicalLocation":"Rio","pairedRegion":[{"name":"brazilsouth","id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/brazilsouth"}]}}]}'
+        Dhabi","pairedRegion":[{"name":"uaenorth","id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/uaenorth"}]}}]}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '25532'
+      - '24609'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 28 Jan 2021 07:14:41 GMT
+      - Fri, 24 Jul 2020 09:44:08 GMT
       expires:
       - '-1'
       pragma:
@@ -141,12 +138,12 @@ interactions:
       ParameterSetName:
       - -k -g -n -d -e --appid
       User-Agent:
-      - python/3.8.2 (macOS-10.14.3-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
-        azure-mgmt-botservice/0.3.0 Azure-SDK-For-Python AZURECLI/2.18.0
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-botservice/0.2.0
+        Azure-SDK-For-Python AZURECLI/2.9.1
       accept-language:
       - en-US
     method: POST
-    uri: https://management.azure.com/providers/Microsoft.BotService/checkNameAvailability?api-version=2020-06-02
+    uri: https://management.azure.com/providers/Microsoft.BotService/checkNameAvailability?api-version=2018-07-12
   response:
     body:
       string: '{"valid":true,"message":"","absCode":null}'
@@ -158,7 +155,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 28 Jan 2021 07:14:42 GMT
+      - Fri, 24 Jul 2020 09:44:09 GMT
       expires:
       - '-1'
       pragma:
@@ -172,14 +169,14 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-ratelimit-remaining-tenant-writes:
-      - '1199'
+      - '1192'
     status:
       code: 200
       message: OK
 - request:
     body: '{"location": "global", "sku": {"name": "F0"}, "kind": "bot", "properties":
       {"displayName": "cli000003", "description": "description1", "endpoint": "https://www.google.com/api/messages",
-      "msaAppId": "60555163-920e-48c9-8ba8-a7164dfca493", "isCmekEnabled": false}}'
+      "msaAppId": "c0821e6f-c5f1-47fd-a811-a2eba34effc8"}}'
     headers:
       Accept:
       - application/json
@@ -190,32 +187,32 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '263'
+      - '239'
       Content-Type:
       - application/json; charset=utf-8
       ParameterSetName:
       - -k -g -n -d -e --appid
       User-Agent:
-      - python/3.8.2 (macOS-10.14.3-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
-        azure-mgmt-botservice/0.3.0 Azure-SDK-For-Python AZURECLI/2.18.0
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-botservice/0.2.0
+        Azure-SDK-For-Python AZURECLI/2.9.1
       accept-language:
       - en-US
     method: PUT
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.BotService/botServices/cli000003?api-version=2020-06-02
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.BotService/botServices/cli000003?api-version=2018-07-12
   response:
     body:
-      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.BotService/botServices/cli000003","name":"cli000003","type":"Microsoft.BotService/botServices","etag":"\"4d006196-0000-0200-0000-601264640000\"","location":"global","sku":{"name":"F0"},"kind":"bot","tags":{},"properties":{"displayName":"cli000003","description":"description1","iconUrl":"https://docs.botframework.com/static/devportal/client/images/bot-framework-default.png","endpoint":"https://www.google.com/api/messages","msaAppId":"60555163-920e-48c9-8ba8-a7164dfca493","developerAppInsightKey":null,"developerAppInsightsApplicationId":null,"luisAppIds":[],"endpointVersion":"3.0","configuredChannels":["webchat"],"enabledChannels":["webchat","directline"],"isDeveloperAppInsightsApiKeySet":false,"isStreamingSupported":false,"publishingCredentials":null,"parameters":null,"allSettings":null,"manifestUrl":null,"storageResourceId":null,"migrationToken":null,"isCmekEnabled":false,"cmekKeyVaultUrl":null,"openWithHint":null,"appPasswordHint":null,"cmekEncryptionStatus":"Off","provisioningState":"Succeeded"}}'
+      string: '{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000001/providers/Microsoft.BotService/botServices/cli000003","name":"cli000003","type":"Microsoft.BotService/botServices","etag":"\"00005c44-0000-1800-0000-5f1aad6e0000\"","location":"global","sku":{"name":"F0"},"kind":"bot","tags":{},"properties":{"displayName":"cli000003","description":"description1","iconUrl":"https://docs.botframework.com/static/devportal/client/images/bot-framework-default.png","endpoint":"https://www.google.com/api/messages","msaAppId":"c0821e6f-c5f1-47fd-a811-a2eba34effc8","developerAppInsightKey":null,"developerAppInsightsApplicationId":null,"luisAppIds":[],"endpointVersion":"3.0","configuredChannels":["webchat"],"enabledChannels":["webchat","directline"],"isDeveloperAppInsightsApiKeySet":false,"isStreamingSupported":false,"publishingCredentials":null,"parameters":null,"allSettings":null,"manifestUrl":null,"storageResourceId":null,"migrationToken":null,"provisioningState":"Succeeded"}}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '1131'
+      - '1014'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 28 Jan 2021 07:14:44 GMT
+      - Fri, 24 Jul 2020 09:44:26 GMT
       etag:
-      - '"4d006196-0000-0200-0000-601264640000"'
+      - '"00005c44-0000-1800-0000-5f1aad6e0000"'
       expires:
       - '-1'
       pragma:
@@ -225,7 +222,7 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-ratelimit-remaining-subscription-writes:
-      - '1199'
+      - '1189'
     status:
       code: 201
       message: Created
@@ -243,8 +240,8 @@ interactions:
       ParameterSetName:
       - -k -g -n -d -e --appid
       User-Agent:
-      - python/3.8.2 (macOS-10.14.3-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
-        azure-mgmt-resource/12.0.0 Azure-SDK-For-Python AZURECLI/2.18.0
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-resource/10.1.0
+        Azure-SDK-For-Python AZURECLI/2.9.1
       accept-language:
       - en-US
     method: GET
@@ -304,8 +301,7 @@ interactions:
         Pacific"}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/centraluseuap","name":"centraluseuap","displayName":"Central
         US EUAP","regionalDisplayName":"(US) Central US EUAP","metadata":{"regionType":"Physical","regionCategory":"Other","geographyGroup":"US","longitude":"-93.6208","latitude":"41.5908","pairedRegion":[{"name":"eastus2euap","id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/eastus2euap"}]}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/eastus2euap","name":"eastus2euap","displayName":"East
         US 2 EUAP","regionalDisplayName":"(US) East US 2 EUAP","metadata":{"regionType":"Physical","regionCategory":"Other","geographyGroup":"US","longitude":"-78.3889","latitude":"36.6681","pairedRegion":[{"name":"centraluseuap","id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/centraluseuap"}]}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/westcentralus","name":"westcentralus","displayName":"West
-        Central US","regionalDisplayName":"(US) West Central US","metadata":{"regionType":"Physical","regionCategory":"Other","geographyGroup":"US","longitude":"-110.234","latitude":"40.890","physicalLocation":"Wyoming","pairedRegion":[{"name":"westus2","id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/westus2"}]}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/westus3","name":"westus3","displayName":"West
-        US 3","regionalDisplayName":"(US) West US 3","metadata":{"regionType":"Physical","regionCategory":"Other","geographyGroup":"US","longitude":"-112.074036","latitude":"33.448376","physicalLocation":"Phoenix","pairedRegion":[{"name":"eastus","id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/eastus"}]}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/southafricawest","name":"southafricawest","displayName":"South
+        Central US","regionalDisplayName":"(US) West Central US","metadata":{"regionType":"Physical","regionCategory":"Other","geographyGroup":"US","longitude":"-110.234","latitude":"40.890","physicalLocation":"Wyoming","pairedRegion":[{"name":"westus2","id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/westus2"}]}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/southafricawest","name":"southafricawest","displayName":"South
         Africa West","regionalDisplayName":"(Africa) South Africa West","metadata":{"regionType":"Physical","regionCategory":"Other","geographyGroup":"Africa","longitude":"18.843266","latitude":"-34.075691","physicalLocation":"Cape
         Town","pairedRegion":[{"name":"southafricanorth","id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/southafricanorth"}]}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/australiacentral","name":"australiacentral","displayName":"Australia
         Central","regionalDisplayName":"(Asia Pacific) Australia Central","metadata":{"regionType":"Physical","regionCategory":"Other","geographyGroup":"Asia
@@ -330,18 +326,16 @@ interactions:
         West","regionalDisplayName":"(Europe) UK West","metadata":{"regionType":"Physical","regionCategory":"Other","geographyGroup":"Europe","longitude":"-3.084","latitude":"53.427","physicalLocation":"Cardiff","pairedRegion":[{"name":"uksouth","id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/uksouth"}]}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/uaecentral","name":"uaecentral","displayName":"UAE
         Central","regionalDisplayName":"(Middle East) UAE Central","metadata":{"regionType":"Physical","regionCategory":"Other","geographyGroup":"Middle
         East","longitude":"54.366669","latitude":"24.466667","physicalLocation":"Abu
-        Dhabi","pairedRegion":[{"name":"uaenorth","id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/uaenorth"}]}},{"id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/brazilsoutheast","name":"brazilsoutheast","displayName":"Brazil
-        Southeast","regionalDisplayName":"(South America) Brazil Southeast","metadata":{"regionType":"Physical","regionCategory":"Other","geographyGroup":"South
-        America","longitude":"-43.2075","latitude":"-22.90278","physicalLocation":"Rio","pairedRegion":[{"name":"brazilsouth","id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/brazilsouth"}]}}]}'
+        Dhabi","pairedRegion":[{"name":"uaenorth","id":"/subscriptions/00000000-0000-0000-0000-000000000000/locations/uaenorth"}]}}]}'
     headers:
       cache-control:
       - no-cache
       content-length:
-      - '25532'
+      - '24609'
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 28 Jan 2021 07:14:44 GMT
+      - Fri, 24 Jul 2020 09:44:27 GMT
       expires:
       - '-1'
       pragma:
@@ -373,12 +367,12 @@ interactions:
       ParameterSetName:
       - -k -g -n -d -e --appid
       User-Agent:
-      - python/3.8.2 (macOS-10.14.3-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
-        azure-mgmt-botservice/0.3.0 Azure-SDK-For-Python AZURECLI/2.18.0
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-botservice/0.2.0
+        Azure-SDK-For-Python AZURECLI/2.9.1
       accept-language:
       - en-US
     method: POST
-    uri: https://management.azure.com/providers/Microsoft.BotService/checkNameAvailability?api-version=2020-06-02
+    uri: https://management.azure.com/providers/Microsoft.BotService/checkNameAvailability?api-version=2018-07-12
   response:
     body:
       string: '{"valid":false,"message":"The requested bot name is not available","absCode":null}'
@@ -390,7 +384,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 28 Jan 2021 07:14:45 GMT
+      - Fri, 24 Jul 2020 09:44:27 GMT
       expires:
       - '-1'
       pragma:
@@ -404,7 +398,7 @@ interactions:
       x-content-type-options:
       - nosniff
       x-ms-ratelimit-remaining-tenant-writes:
-      - '1199'
+      - '1197'
     status:
       code: 200
       message: OK
@@ -422,12 +416,12 @@ interactions:
       ParameterSetName:
       - -k -g -n -d -e --appid
       User-Agent:
-      - python/3.8.2 (macOS-10.14.3-x86_64-i386-64bit) msrest/0.6.18 msrest_azure/0.6.3
-        azure-mgmt-botservice/0.3.0 Azure-SDK-For-Python AZURECLI/2.18.0
+      - python/3.8.0 (Windows-10-10.0.19041-SP0) msrest/0.6.9 msrest_azure/0.6.3 azure-mgmt-botservice/0.2.0
+        Azure-SDK-For-Python AZURECLI/2.9.1
       accept-language:
       - en-US
     method: GET
-    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000002/providers/Microsoft.BotService/botServices/cli000003?api-version=2020-06-02
+    uri: https://management.azure.com/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/clitest.rg000002/providers/Microsoft.BotService/botServices/cli000003?api-version=2018-07-12
   response:
     body:
       string: '{"error":{"code":"ResourceNotFound","message":"The Resource ''Microsoft.BotService/botServices/cli000003''
@@ -441,7 +435,7 @@ interactions:
       content-type:
       - application/json; charset=utf-8
       date:
-      - Thu, 28 Jan 2021 07:14:45 GMT
+      - Fri, 24 Jul 2020 09:44:29 GMT
       expires:
       - '-1'
       pragma:

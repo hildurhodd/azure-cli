@@ -293,8 +293,7 @@ def create_managed_disk(cmd, resource_group_name, disk_name, location=None,  # p
                         disk_iops_read_only=None, disk_mbps_read_only=None,
                         image_reference=None, image_reference_lun=None,
                         gallery_image_reference=None, gallery_image_reference_lun=None,
-                        network_access_policy=None, disk_access=None, logical_sector_size=None,
-                        tier=None, enable_bursting=None):
+                        network_access_policy=None, disk_access=None, logical_sector_size=None, tier=None):
     from msrestazure.tools import resource_id, is_valid_resource_id
     from azure.cli.core.commands.client_factory import get_subscription_id
 
@@ -396,8 +395,6 @@ def create_managed_disk(cmd, resource_group_name, disk_name, location=None,  # p
         disk.disk_access_id = disk_access
     if tier is not None:
         disk.tier = tier
-    if enable_bursting is not None:
-        disk.bursting_enabled = enable_bursting
 
     client = _compute_client_factory(cmd.cli_ctx)
     return sdk_no_wait(no_wait, client.disks.begin_create_or_update, resource_group_name, disk_name, disk)
@@ -418,7 +415,7 @@ def list_managed_disks(cmd, resource_group_name=None):
 def update_managed_disk(cmd, resource_group_name, instance, size_gb=None, sku=None, disk_iops_read_write=None,
                         disk_mbps_read_write=None, encryption_type=None, disk_encryption_set=None,
                         network_access_policy=None, disk_access=None, max_shares=None, disk_iops_read_only=None,
-                        disk_mbps_read_only=None, enable_bursting=False):
+                        disk_mbps_read_only=None):
     from msrestazure.tools import resource_id, is_valid_resource_id
     from azure.cli.core.commands.client_factory import get_subscription_id
 
@@ -454,8 +451,6 @@ def update_managed_disk(cmd, resource_group_name, instance, size_gb=None, sku=No
             subscription=get_subscription_id(cmd.cli_ctx), resource_group=resource_group_name,
             namespace='Microsoft.Compute', type='diskAccesses', name=disk_access)
         instance.disk_access_id = disk_access
-    if enable_bursting is not None:
-        instance.bursting_enabled = enable_bursting
     return instance
 # endregion
 
@@ -720,8 +715,7 @@ def create_vm(cmd, vm_name, resource_group_name, image=None, size='Standard_DS1_
               proximity_placement_group=None, dedicated_host=None, dedicated_host_group=None, aux_subscriptions=None,
               priority=None, max_price=None, eviction_policy=None, enable_agent=None, workspace=None, vmss=None,
               os_disk_encryption_set=None, data_disk_encryption_sets=None, specialized=None,
-              encryption_at_host=None, enable_auto_update=None, patch_mode=None, ssh_key_name=None,
-              enable_hotpatching=None):
+              encryption_at_host=None, enable_auto_update=None, patch_mode=None, ssh_key_name=None):
     from azure.cli.core.commands.client_factory import get_subscription_id
     from azure.cli.core.util import random_string, hash_string
     from azure.cli.core.commands.arm import ArmTemplateBuilder
@@ -893,7 +887,7 @@ def create_vm(cmd, vm_name, resource_group_name, image=None, size='Standard_DS1_
         enable_agent=enable_agent, vmss=vmss, os_disk_encryption_set=os_disk_encryption_set,
         data_disk_encryption_sets=data_disk_encryption_sets, specialized=specialized,
         encryption_at_host=encryption_at_host, dedicated_host_group=dedicated_host_group,
-        enable_auto_update=enable_auto_update, patch_mode=patch_mode, enable_hotpatching=enable_hotpatching)
+        enable_auto_update=enable_auto_update, patch_mode=patch_mode)
 
     vm_resource['dependsOn'] = vm_dependencies
 
@@ -2345,7 +2339,7 @@ def create_vmss(cmd, vmss_name, resource_group_name, image=None,
                 identity_role_id=None, zones=None, priority=None, eviction_policy=None,
                 application_security_groups=None, ultra_ssd_enabled=None, ephemeral_os_disk=None,
                 proximity_placement_group=None, aux_subscriptions=None, terminate_notification_time=None,
-                max_price=None, computer_name_prefix=None, orchestration_mode='Uniform', scale_in_policy=None,
+                max_price=None, computer_name_prefix=None, orchestration_mode='ScaleSetVM', scale_in_policy=None,
                 os_disk_encryption_set=None, data_disk_encryption_sets=None, data_disk_iops=None, data_disk_mbps=None,
                 automatic_repairs_grace_period=None, specialized=None, os_disk_size_gb=None, encryption_at_host=None,
                 host_group=None):
@@ -2361,9 +2355,9 @@ def create_vmss(cmd, vmss_name, resource_group_name, image=None,
     # Build up the ARM template
     master_template = ArmTemplateBuilder()
 
-    uniform_str = 'Uniform'
-    flexible_str = 'Flexible'
-    if orchestration_mode.lower() == uniform_str.lower():
+    scale_set_vm_str = 'ScaleSetVM'
+    vm_str = 'VM'
+    if orchestration_mode.lower() == scale_set_vm_str.lower():
         from msrestazure.tools import resource_id, is_valid_resource_id
 
         storage_sku = disk_info['os'].get('storageAccountType')
@@ -2604,9 +2598,9 @@ def create_vmss(cmd, vmss_name, resource_group_name, image=None,
                 master_template.add_resource(build_msi_role_assignment(vmss_name, vmss_id, identity_role_id,
                                                                        role_assignment_guid, identity_scope, False))
 
-    elif orchestration_mode.lower() == flexible_str.lower():
+    elif orchestration_mode.lower() == vm_str.lower():
         if platform_fault_domain_count is None:
-            raise CLIError("usage error: --platform-fault-domain-count is required in Flexible mode")
+            raise CLIError("usage error: --platform-fault-domain-count is required in VM mode")
         vmss_resource = {
             'type': 'Microsoft.Compute/virtualMachineScaleSets',
             'name': vmss_name,
@@ -2626,13 +2620,13 @@ def create_vmss(cmd, vmss_name, resource_group_name, image=None,
                 'id': proximity_placement_group
             }
     else:
-        raise CLIError('usage error: --orchestration-mode (Uniform | Flexible)')
+        raise CLIError('usage error: --orchestration-mode (ScaleSet | VM)')
 
     master_template.add_resource(vmss_resource)
     master_template.add_output('VMSS', vmss_name, 'Microsoft.Compute', 'virtualMachineScaleSets',
                                output_type='object')
 
-    if orchestration_mode.lower() == uniform_str.lower() and admin_password:
+    if orchestration_mode.lower() == scale_set_vm_str.lower() and admin_password:
         master_template.add_secure_parameter('adminPassword', admin_password)
 
     template = master_template.build()
@@ -2670,7 +2664,7 @@ def create_vmss(cmd, vmss_name, resource_group_name, image=None,
         deployment_result = DeploymentOutputLongRunningOperation(cmd.cli_ctx)(
             sdk_no_wait(no_wait, client.create_or_update, resource_group_name, deployment_name, properties))
 
-    if orchestration_mode.lower() == uniform_str.lower() and assign_identity is not None:
+    if orchestration_mode.lower() == scale_set_vm_str.lower() and assign_identity is not None:
         vmss_info = get_vmss(cmd, resource_group_name, vmss_name)
         if enable_local_identity and not identity_scope:
             _show_missing_access_warning(resource_group_name, vmss_name, 'vmss')

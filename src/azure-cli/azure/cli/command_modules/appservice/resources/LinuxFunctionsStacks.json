@@ -2,40 +2,6 @@
     "value": [
         {
             "id": null,
-            "name": "dotnet-isolated",
-            "type": "Microsoft.Web/availableStacks?osTypeSelected=LinuxFunctions",
-            "properties": {
-                "name": "dotnet-isolated",
-                "display": ".NET Core Isolated",
-                "dependency": null,
-                "majorVersions": [
-                    {
-                        "displayVersion": "5.0",
-                        "runtimeVersion": "5.0",
-                        "supportedFunctionsExtensionVersions": [
-                            "~3"
-                        ],
-                        "isDefault": true,
-                        "minorVersions": [],
-                        "applicationInsights": true,
-                        "appSettingsDictionary": {
-                            "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated"
-                        },
-                        "siteConfigPropertiesDictionary": {
-                            "use32BitWorkerProcess": false,
-                            "linuxFxVersion": "dotnet-isolated|5.0"
-                        },
-                        "isPreview": true,
-                        "isDeprecated": false,
-                        "isHidden": false
-                    }
-                ],
-                "frameworks": [],
-                "isDeprecated": null
-            }
-        },
-        {
-            "id": null,
             "name": "dotnet",
             "type": "Microsoft.Web/availableStacks?osTypeSelected=LinuxFunctions",
             "properties": {
@@ -103,7 +69,7 @@
                         "supportedFunctionsExtensionVersions": [
                             "~3"
                         ],
-                        "isDefault": true,
+                        "isDefault": false,
                         "minorVersions": [],
                         "applicationInsights": true,
                         "appSettingsDictionary": {
@@ -113,7 +79,7 @@
                             "use32BitWorkerProcess": false,
                             "linuxFxVersion": "Node|14"
                         },
-                        "isPreview": false,
+                        "isPreview": true,
                         "isDeprecated": false,
                         "isHidden": false
                     },
@@ -123,7 +89,7 @@
                         "supportedFunctionsExtensionVersions": [
                             "~3"
                         ],
-                        "isDefault": false,
+                        "isDefault": true,
                         "minorVersions": [],
                         "applicationInsights": true,
                         "appSettingsDictionary": {

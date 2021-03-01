@@ -8,7 +8,6 @@ import os
 import shutil
 from uuid import UUID
 
-from azure.cli.core.azclierror import MutuallyExclusiveArgumentError
 from azure.cli.command_modules.botservice.bot_json_formatter import BotJsonFormatter
 from azure.cli.command_modules.botservice.bot_publish_prep import BotPublishPrep
 from azure.cli.command_modules.botservice.bot_template_deployer import BotTemplateDeployer
@@ -101,7 +100,7 @@ def __handle_failed_name_check(name_response, cmd, client, resource_group_name, 
 
 def create(cmd, client, resource_group_name, resource_name, kind, msa_app_id, password=None, language=None,  # pylint: disable=too-many-locals, too-many-statements, inconsistent-return-statements
            description=None, display_name=None, endpoint=None, tags=None, location='Central US',
-           sku_name='F0', deploy_echo=None, cmek_key_vault_url=None):
+           sku_name='F0', deploy_echo=None):
     # Kind parameter validation
     kind = kind.lower()
     registration_kind = 'registration'
@@ -147,10 +146,6 @@ def create(cmd, client, resource_group_name, resource_name, kind, msa_app_id, pa
         if not endpoint:
             endpoint = ''
 
-        is_cmek_enabled = False
-        if cmek_key_vault_url is not None:
-            is_cmek_enabled = True
-
         parameters = Bot(
             location='global',
             sku=Sku(name=sku_name),
@@ -160,9 +155,7 @@ def create(cmd, client, resource_group_name, resource_name, kind, msa_app_id, pa
                 display_name=display_name,
                 description=description,
                 endpoint=endpoint,
-                msa_app_id=msa_app_id,
-                is_cmek_enabled=is_cmek_enabled,
-                cmek_key_vault_url=cmek_key_vault_url
+                msa_app_id=msa_app_id
             )
         )
         logger.info('Bot parameters client side validation successful.')
@@ -190,7 +183,7 @@ def create(cmd, client, resource_group_name, resource_name, kind, msa_app_id, pa
 
     creation_results = BotTemplateDeployer.create_app(
         cmd, logger, client, resource_group_name, resource_name, description, kind, msa_app_id, password,
-        location, sku_name, language, bot_template_type, cmek_key_vault_url)
+        location, sku_name, language, bot_template_type)
 
     return creation_results
 
@@ -683,8 +676,7 @@ def publish_app(cmd, client, resource_group_name, resource_name, code_dir=None, 
 
 def update(client, resource_group_name, resource_name, endpoint=None, description=None,
            display_name=None, tags=None, sku_name=None, app_insights_key=None,
-           app_insights_api_key=None, app_insights_app_id=None, icon_url=None,
-           encryption_off=None, cmek_key_vault_url=None):
+           app_insights_api_key=None, app_insights_app_id=None, icon_url=None):
     bot = client.bots.get(
         resource_group_name=resource_group_name,
         resource_name=resource_name
@@ -703,18 +695,6 @@ def update(client, resource_group_name, resource_name, endpoint=None, descriptio
 
     if app_insights_api_key:
         bot_props.developer_app_insights_api_key = app_insights_api_key
-
-    if cmek_key_vault_url is not None and encryption_off is not None:
-        error_msg = "Both --encryption-off and a --cmk-key-vault-key-url (encryption ON) were passed. " \
-                    "Please use only one: --cmk-key-vault-key-url or --encryption_off"
-        raise MutuallyExclusiveArgumentError(error_msg)
-
-    if cmek_key_vault_url is not None:
-        bot_props.cmek_key_vault_url = cmek_key_vault_url
-        bot_props.is_cmek_enabled = True
-
-    if encryption_off is not None:
-        bot_props.is_cmek_enabled = False
 
     return client.bots.update(resource_group_name,
                               resource_name,
