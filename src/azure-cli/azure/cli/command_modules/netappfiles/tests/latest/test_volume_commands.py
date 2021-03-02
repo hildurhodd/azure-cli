@@ -138,7 +138,7 @@ class AzureNetAppFilesVolumeServiceScenarioTest(ScenarioTest):
         self.cmd("az group delete --yes -n %s" % (subnet_rg))
 
     @ResourceGroupPreparer(name_prefix='cli_netappfiles_test_volume_')
-    @ResourceGroupPreparer(name_prefix='cli_netappf_test_volume2_', parameter_name='replication_resourcegroup')
+    @ResourceGroupPreparer(name_prefix='cli_netappfiles_test_volume2_', parameter_name='replication_resourcegroup')
     def test_perform_replication(self, resource_group, replication_resourcegroup):
         # create source volume
         account_name = self.create_random_name(prefix='cli-acc-', length=24)
