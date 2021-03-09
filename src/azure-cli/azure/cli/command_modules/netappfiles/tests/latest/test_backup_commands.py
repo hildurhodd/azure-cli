@@ -3,13 +3,9 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 from azure.cli.testsdk import ScenarioTest, ResourceGroupPreparer
-import time
-import unittest
-
 LOCATION = "eastus2euap"
 
 
-@unittest.skip("Backup unstable so these tests need to be skipped for this version")
 class AzureNetAppFilesBackupServiceScenarioTest(ScenarioTest):
     def setup_vnet(self, vnet_name, subnet_name):
         self.cmd("az network vnet create -n %s -g {rg} -l %s --address-prefix 10.5.0.0/16" %
@@ -54,9 +50,9 @@ class AzureNetAppFilesBackupServiceScenarioTest(ScenarioTest):
             vaults = self.cmd("az netappfiles vault list -g {rg} -a %s" % account_name).get_output_in_json()
 
             # create backup policy
-            backup_policy_name = self.create_random_name(prefix='cli-bp-pol-', length=16)
+            backup_policy_name = self.create_random_name(prefix='cli-backup-pol-', length=16)
             backup_policy = self.cmd("az netappfiles account backup-policy create -g {rg} -a %s "
-                                     "--backup-policy-name %s -l %s --daily-backups 1 --enabled true" %
+                                     "--backup-policy-name %s -l %s --daily-backups 1" %
                                      (account_name, backup_policy_name, LOCATION)).get_output_in_json()
 
             # volume update with backup policy
@@ -69,22 +65,6 @@ class AzureNetAppFilesBackupServiceScenarioTest(ScenarioTest):
         backup = self.cmd("az netappfiles volume backup create -g {rg} -a %s -p %s -v %s -l %s --backup-name %s" %
                           (account_name, pool_name, volume_name, LOCATION, backup_name)).get_output_in_json()
         return backup
-
-    def delete_backup(self, account_name, pool_name, volume_name):
-        vaults = self.get_vaults(account_name)
-
-        backup_policies = self.cmd("az netappfiles account backup-policy list -g {rg} -a %s" %
-                                   account_name).get_output_in_json()
-
-        # Delete
-        self.cmd("az netappfiles volume update -g {rg} -a %s -p %s -v %s --vault-id %s --backup-enabled %s "
-                 "--backup-policy-id %s" %
-                 (account_name, pool_name, volume_name, vaults[0]['id'], False, backup_policies[0]['id']))
-        self.cmd("az netappfiles account backup-policy delete -g {rg} -a %s --backup-policy-name %s" %
-                 (account_name, backup_policies[0]['name']))
-
-    def get_vaults(self, account_name):
-        return self.cmd("az netappfiles vault list -g {rg} -a %s" % account_name).get_output_in_json()
 
     @ResourceGroupPreparer(name_prefix='cli_netappfiles_test_backup_')
     def test_create_delete_backup(self):
